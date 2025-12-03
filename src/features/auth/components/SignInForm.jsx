@@ -17,6 +17,7 @@ const SignInForm = () => {
           }
         }}
         signUpUrl="/signup"
+        forceRedirectUrl="/dashboard"
       />
     </div>
   );
