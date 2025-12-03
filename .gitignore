@@ -26,3 +26,4 @@ dist-ssr
 
 # Ignores all README Files or Markdown Files
 *.md
+*.env
