@@ -3,9 +3,22 @@ import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 import MouseSpotlight from '../../features/auth/components/MouseSpotlight';
 import FloatingParticles from '../../features/auth/components/FloatingParticles';
-import SignUpForm from '../../features/auth/components/SignUpForm';
+import SignInForm from '../../features/auth/components/SignInForm';
 
-const AdvyonSignUpPage = () => {
+// --- THEME CONSTANTS (Strict Adherence) ---
+const THEME = {
+  bgDeep: '#1C4645',    // Main Background
+  bgSurface: '#1D4746', // Secondary Background
+  accent: '#3A7573',    // Buttons/Highlights
+  accentLight: '#3C726F',
+  textWhite: '#FFFFFF',
+  textSoft: '#B0C4C3',  // Muted Text
+};
+
+// --- MAIN PAGE ---
+
+const SignInPage = () => {
+  console.log("Rendering SignInPage");
   return (
     <div className="relative min-h-screen w-full bg-[#1C4645] text-white overflow-hidden flex items-center justify-center selection:bg-[#3A7573] selection:text-white">
       
@@ -26,6 +39,7 @@ const AdvyonSignUpPage = () => {
       <MouseSpotlight />
 
       {/* 4. Main Content Container */}
+      {/* Fixed: Added 'relative' so z-20 works, ensuring content sits ABOVE the z-10 spotlight */}
       <div className="relative container mx-auto px-4 z-20 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 h-full">
         
         {/* Left Side: Brand & Marketing (Hidden on small mobile for focus) */}
@@ -43,24 +57,25 @@ const AdvyonSignUpPage = () => {
           </div>
           
           <h2 className="text-5xl font-bold leading-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white via-[#B0C4C3] to-white/50">
-            Join the Future of <br/> Legal Intelligence.
+            Future of Legal <br/> Intelligence.
           </h2>
           
           <p className="text-lg text-[#B0C4C3] mb-8 leading-relaxed">
-            Create your account to access AI-driven insights, secure document handling, and seamless team collaboration.
+            Experience the next generation of case management. 
+            AI-driven insights, secure document handling, and seamless collaboration.
           </p>
 
           <div className="flex items-center gap-4 text-sm font-medium text-[#3A7573]">
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C4645]/50 border border-[#3A7573]/30 backdrop-blur-md">
-              <CheckCircle2 className="w-4 h-4" /> Free Trial
+              <CheckCircle2 className="w-4 h-4" /> AI Powered
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1C4645]/50 border border-[#3A7573]/30 backdrop-blur-md">
-              <CheckCircle2 className="w-4 h-4" /> No Credit Card
+              <CheckCircle2 className="w-4 h-4" /> Bank-Grade Security
             </div>
           </div>
         </motion.div>
 
-        {/* Right Side: Sign Up Card (Glassmorphism) */}
+        {/* Right Side: Login Card (Glassmorphism) */}
         <motion.div 
           initial={{ opacity: 0, y: 20, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -70,7 +85,8 @@ const AdvyonSignUpPage = () => {
           <div className="relative group">
             {/* Glowing Border Gradient */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-[#3A7573] to-[#5cdbd6] rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-1000"></div>
-            <SignUpForm />
+               <SignInForm />
+            
           </div>
           
           <p className="text-center text-xs text-white/30 mt-8">
@@ -83,4 +99,4 @@ const AdvyonSignUpPage = () => {
   );
 };
 
-export default AdvyonSignUpPage;
+export default SignInPage;
