@@ -1,31 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
-import MouseSpotlight from '../features/auth/components/MouseSpotlight';
-import FloatingParticles from '../features/auth/components/FloatingParticles';
+import DynamicBackground from '@/components/ui/DynamicBackground';
 
 export default function AuthLayout() {
   return (
-    <div className="relative min-h-screen w-full bg-[#1C4645] text-white overflow-hidden flex items-center justify-center selection:bg-[#3A7573] selection:text-white">
-      
-      {/* 1. Dynamic Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1C4645] via-[#153433] to-[#0f2524] z-0"></div>
-      
-      {/* 2. Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 z-0 mix-blend-overlay"></div>
-      <div className="absolute inset-0 z-0 opacity-10" 
-           style={{ 
-             backgroundImage: 'linear-gradient(#3A7573 1px, transparent 1px), linear-gradient(90deg, #3A7573 1px, transparent 1px)', 
-             backgroundSize: '40px 40px' 
-           }}>
-      </div>
-
-      {/* 3. Animated Elements */}
-      <FloatingParticles />
-      <MouseSpotlight />
-
-      {/* 4. Main Content Container */}
-      <div className="relative container mx-auto px-4 z-20 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 h-full">
+    <DynamicBackground>
+      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 h-full min-h-screen">
         
         {/* Left Side: Brand & Marketing (Hidden on small mobile for focus) */}
         <motion.div 
@@ -79,6 +60,6 @@ export default function AuthLayout() {
         </motion.div>
 
       </div>
-    </div>
+    </DynamicBackground>
   );
 }
