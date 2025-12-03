@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "@/layouts/AppLayout";
 import Home from "@/pages/Home";
-import AdvyonLoginPage from "@/pages/auth/AdvyonLoginPage";
-import AdvyonSignUpPage from "@/pages/auth/AdvyonSignUpPage";
-import AboutPage from "@/pages/AboutPage";
+import SignInPage from "@/pages/auth/SignInPage";
+import SignUpPage from "@/pages/auth/SignUpPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 
 export const router = createBrowserRouter([
   {
@@ -11,9 +11,9 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: "login", element: <AdvyonLoginPage /> },
-      { path: "signup", element: <AdvyonSignUpPage /> },
-      { path: "about", element: <AboutPage /> },
+      { path: "login", element: <SignInPage /> },
+      { path: "signup", element: <SignUpPage /> },
+      { path: "onboarding", element: <OnboardingPage /> },
     ],
   },
 ]);
