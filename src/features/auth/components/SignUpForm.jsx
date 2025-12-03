@@ -16,7 +16,7 @@ const SignUpForm = () => {
             footerActionLink: 'text-[#3A7573] hover:text-[#1D4746]'
           }
         }}
-        signInUrl="/login"
+        signInUrl="/auth/login"
       />
     </div>
   );
