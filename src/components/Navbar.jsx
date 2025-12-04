@@ -4,6 +4,7 @@ import { CircleCheckIcon, CircleHelpIcon, CircleIcon, User, LogOut, Globe } from
 import { motion } from "framer-motion"
 import { useClerk } from "@clerk/clerk-react"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { AIAssistantToggle, useAIAssistant } from "@/components"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -75,6 +76,7 @@ export function Navbar() {
   const isMobile = useIsMobile()
   const { signOut, user } = useClerk()
   const [selectedLanguage, setSelectedLanguage] = React.useState("en")
+  const { isOpen, toggleAI } = useAIAssistant()
 
   return (
     <motion.div 
@@ -159,6 +161,13 @@ export function Navbar() {
 
         {/* Right side user controls */}
         <div className="flex items-center gap-3 ml-auto">
+          {/* AI Assistant Toggle */}
+          <AIAssistantToggle 
+            onClick={toggleAI}
+            isActive={isOpen}
+            position="navbar"
+          />
+
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
