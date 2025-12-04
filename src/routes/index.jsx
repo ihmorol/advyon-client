@@ -3,6 +3,7 @@ import AppLayout from "@/layouts/AppLayout";
 import Home from "@/pages/Home";
 import SignInPage from "@/pages/auth/SignInPage";
 import SignUpPage from "@/pages/auth/SignUpPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 
 import AuthLayout from "@/layouts/AuthLayout";
 

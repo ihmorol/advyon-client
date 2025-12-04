@@ -4,7 +4,7 @@ import { SignUp } from "@clerk/clerk-react";
 const SignUpForm = () => {
   return (
     <div className="w-full flex justify-center">
-      <SignUp 
+      <SignUp
         appearance={{
           elements: {
             formButtonPrimary: 'bg-[#1C4645] hover:bg-[#1D4746] text-white',
