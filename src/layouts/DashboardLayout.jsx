@@ -2,16 +2,18 @@ import React, { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Navbar } from '@/components/Navbar'
 import { Sidebar } from '@/components/Sidebar'
-import { motion } from 'framer-motion'
+import { AIAssistant, useAIAssistant } from '@/components'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const DashboardLayout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
+  const { isOpen, closeAI, width, setAIWidth } = useAIAssistant()
 
   return (
-    <div className="min-h-screen bg-[#1C4645] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
-      <div className="flex flex-1 relative">
-        {/* Animated Placeholder for the fixed sidebar width */}
+      <div className="flex flex-1 relative overflow-hidden">
+        {/* Left Sidebar - Animated Placeholder */}
         <motion.div 
           initial={{ width: 80 }}
           animate={{ width: isSidebarCollapsed ? 80 : 250 }}
@@ -34,6 +36,30 @@ const DashboardLayout = () => {
             <Outlet />
           </div>
         </main>
+
+        {/* AI Panel - Animated Placeholder (like sidebar) */}
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: isOpen ? width : 0 }}
+          transition={{ 
+            type: "spring",
+            damping: 25,
+            stiffness: 200
+          }}
+          className="shrink-0"
+        />
+
+        {/* AI Assistant Panel - Fixed position (like sidebar) */}
+        <AnimatePresence mode="wait">
+          {isOpen && (
+            <AIAssistant 
+              isOpen={isOpen} 
+              onClose={closeAI}
+              width={width}
+              onWidthChange={setAIWidth}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

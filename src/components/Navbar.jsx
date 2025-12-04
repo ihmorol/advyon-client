@@ -18,6 +18,7 @@ import {
 import { motion } from "framer-motion"
 import { useClerk } from "@clerk/clerk-react"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { AIAssistantToggle, useAIAssistant } from "@/components"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -71,6 +72,7 @@ export function Navbar() {
   const isMobile = useIsMobile()
   const { signOut, user } = useClerk()
   const [selectedLanguage, setSelectedLanguage] = React.useState("en")
+  const { isOpen, toggleAI } = useAIAssistant()
   const location = useLocation()
   const isDashboard = location.pathname.startsWith('/dashboard')
 
@@ -175,6 +177,12 @@ export function Navbar() {
 
         {/* Right side: Search and User Controls */}
         <div className="flex items-center gap-3 ml-auto">
+          {/* AI Assistant Toggle */}
+          <AIAssistantToggle 
+            onClick={toggleAI}
+            isActive={isOpen}
+            position="navbar"
+          />
           
           {/* Mobile Menu Trigger */}
           <Sheet>

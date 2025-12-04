@@ -6,6 +6,7 @@ import SignUpPage from '@/pages/auth/SignUpPage';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import Dashboard from '@/pages/Dashboard';
 import OnboardingPage from '@/pages/OnboardingPage';
+import WorkspacePage from '@/pages/WorkspacePage';
 
 import AuthLayout from '@/layouts/AuthLayout';
 
@@ -32,6 +33,9 @@ export const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: <DashboardLayout />,
-    children: [{ index: true, element: <Dashboard /> }],
+    children: [
+      { index: true, element: <Dashboard /> },
+      { path: 'workspace', element: <WorkspacePage /> }
+    ],
   },
 ]);
