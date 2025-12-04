@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { DashboardView, WorkspaceView, WorkspaceHeader, ALL_CASES } from '../features/workspace';
+import { DashboardView, WorkspaceView, ALL_CASES } from '../features/workspace';
 import WorkspaceBackground from '../features/workspace/components/WorkspaceBackground';
+import { Navbar } from '@/components/Navbar';
+import { Sidebar } from '@/components/Sidebar';
+import { motion } from 'framer-motion';
 
 const WorkspacePage = () => {
     const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'workspace'
     const [activeCase, setActiveCase] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); // Global search state
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
     const handleCaseSelect = (caseData) => {
         setActiveCase(caseData);
@@ -14,25 +18,44 @@ const WorkspacePage = () => {
     };
 
     return (
-        <WorkspaceBackground>
-            <WorkspaceHeader
-                currentView={currentView}
-                onViewChange={setCurrentView}
-                onCaseSelect={handleCaseSelect}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-            />
-
-            {currentView === 'dashboard' ? (
-                <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
-            ) : (
-                <WorkspaceView
-                    activeCase={activeCase || ALL_CASES[0]}
-                    onSwitchCase={handleCaseSelect}
-                    searchTerm={searchTerm}
+        <div className="min-h-screen bg-[#1C4645] text-white flex flex-col">
+            <Navbar />
+            <div className="flex flex-1 relative">
+                {/* Animated Placeholder for the fixed sidebar width */}
+                <motion.div
+                    initial={{ width: 80 }}
+                    animate={{ width: isSidebarCollapsed ? 80 : 250 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="hidden md:block shrink-0"
                 />
-            )}
-        </WorkspaceBackground>
+
+                <Sidebar
+                    className="hidden md:flex"
+                    isCollapsed={isSidebarCollapsed}
+                    onMouseEnter={() => setIsSidebarCollapsed(false)}
+                    onMouseLeave={() => setIsSidebarCollapsed(true)}
+                />
+
+                <main className="flex-1 overflow-hidden relative z-10 flex flex-col">
+                    {/* Background Effects */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#1C4645] via-[#153433] to-[#0f2524] -z-10 fixed"></div>
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 -z-10 mix-blend-overlay fixed"></div>
+
+                    {/* Workspace Content */}
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                        {currentView === 'dashboard' ? (
+                            <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
+                        ) : (
+                            <WorkspaceView
+                                activeCase={activeCase || ALL_CASES[0]}
+                                onSwitchCase={handleCaseSelect}
+                                searchTerm={searchTerm}
+                            />
+                        )}
+                    </div>
+                </main>
+            </div>
+        </div>
     );
 };
 
