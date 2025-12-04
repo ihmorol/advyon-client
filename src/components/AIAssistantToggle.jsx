@@ -51,7 +51,7 @@ const AIAssistantToggle = ({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300",
+        "flex items-center gap-1 px-6 py-2 rounded-lg transition-all duration-300 min-w-[140px]",
         isActive 
           ? "bg-teal-500/30 text-teal-200 border border-teal-500/50" 
           : "bg-[#153433] text-gray-300 border border-[#2A5C5A] hover:bg-[#2A5C5A] hover:text-white hover:border-teal-500/30"
@@ -70,7 +70,7 @@ const AIAssistantToggle = ({
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-teal-400 rounded-full animate-pulse" />
         )}
       </div>
-      <span className="text-sm font-medium hidden sm:inline">AI Assistant</span>
+      <span className="text-sm font-medium hidden sm:inline">Advyon AI</span>
     </button>
   );
 };

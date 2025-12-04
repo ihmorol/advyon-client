@@ -177,12 +177,19 @@ export function Navbar() {
 
         {/* Right side: Search and User Controls */}
         <div className="flex items-center gap-3 ml-auto">
-          {/* AI Assistant Toggle */}
-          <AIAssistantToggle 
-            onClick={toggleAI}
-            isActive={isOpen}
-            position="navbar"
-          />
+          {/* SEARCH BAR */}
+          <div className="relative hidden md:block w-full max-w-md">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search cases, laws..."
+              className="w-80 pl-9 h-9 bg-primary border-border/50 text-white placeholder:text-muted-foreground focus-visible:ring-accent focus-visible:border-accent"
+            />
+          </div>
+          {/* Mobile Search Icon (visible only on small screens) */}
+          <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-white hover:bg-accent/20">
+            <Search className="h-5 w-5" />
+          </Button>
           
           {/* Mobile Menu Trigger */}
           <Sheet>
@@ -241,19 +248,12 @@ export function Navbar() {
             </SheetContent>
           </Sheet>
 
-          {/* SEARCH BAR */}
-          <div className="relative hidden md:block w-full max-w-sm mr-2">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search cases, laws..."
-              className="w-64 pl-9 h-9 bg-primary border-border/50 text-white placeholder:text-muted-foreground focus-visible:ring-accent focus-visible:border-accent"
-            />
-          </div>
-          {/* Mobile Search Icon (visible only on small screens) */}
-          <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-white hover:bg-accent/20">
-            <Search className="h-5 w-5" />
-          </Button>
+          {/* AI Assistant Toggle */}
+          <AIAssistantToggle 
+            onClick={toggleAI}
+            isActive={isOpen}
+            position="navbar"
+          />
 
           {/* Language Selector */}
           <DropdownMenu>
