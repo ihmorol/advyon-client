@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { DashboardView, WorkspaceView, WorkspaceHeader, ALL_CASES } from '../features/workspace';
-import WorkspaceBackground from '../features/workspace/components/WorkspaceBackground';
+import { DashboardView, WorkspaceView, ALL_CASES } from '../features/workspace';
 
 const WorkspacePage = () => {
     const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'workspace'
@@ -14,15 +13,7 @@ const WorkspacePage = () => {
     };
 
     return (
-        <WorkspaceBackground>
-            <WorkspaceHeader
-                currentView={currentView}
-                onViewChange={setCurrentView}
-                onCaseSelect={handleCaseSelect}
-                searchTerm={searchTerm}
-                onSearchChange={setSearchTerm}
-            />
-
+        <div className="w-full h-full">
             {currentView === 'dashboard' ? (
                 <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
             ) : (
@@ -32,7 +23,7 @@ const WorkspacePage = () => {
                     searchTerm={searchTerm}
                 />
             )}
-        </WorkspaceBackground>
+        </div>
     );
 };
 
