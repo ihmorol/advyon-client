@@ -17,7 +17,7 @@ export default function Home() {
       </SignedIn>
       <SignedOut>
         <div className="absolute top-5 right-5 z-50">
-          <a href="/auth/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <a href="/auth/signin" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             Sign In
           </a>
         </div>
