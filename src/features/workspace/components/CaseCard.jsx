@@ -6,7 +6,7 @@ const CaseCard = ({ data, onOpen }) => (
     // Deepest Teal Card (#051C1B) with Accent Border (#3A7573)
     <div
         onClick={() => onOpen(data)}
-        className="bg-[#051C1B] border border-[#3A7573] rounded-xl p-5 hover:bg-[#153433] hover:border-white/30 transition-all cursor-pointer group flex flex-col h-full shadow-lg hover:shadow-xl hover:shadow-[#1C4645]/20 animate-in fade-in zoom-in-95 duration-300"
+        className="bg-secondary border border-[#3A7573] rounded-xl p-5 hover:bg-[#153433] hover:border-white/30 transition-all cursor-pointer group flex flex-col h-full shadow-lg hover:shadow-xl hover:shadow-[#1C4645]/20 animate-in fade-in zoom-in-95 duration-300"
     >
         <div className="flex items-start justify-between mb-4">
             <div>

@@ -174,7 +174,7 @@ const AIAssistant = ({
     <motion.aside 
       ref={panelRef}
       style={{ width: `${width}px` }}
-      className="fixed right-0 top-16 h-[calc(100vh-4rem)] bg-secondary/95 backdrop-blur-md border-l border-border flex flex-col shadow-2xl z-40"
+      className="fixed right-0 top-16 h-[calc(100vh-4.75rem)] bg-secondary/95 backdrop-blur-md border-l border-border flex flex-col shadow-2xl z-40 rounded-2xl overflow-hidden"
       initial="hidden"
       animate="visible"
       exit="exit"

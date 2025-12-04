@@ -10,7 +10,7 @@ const DashboardLayout = () => {
   const { isOpen, closeAI, width, setAIWidth } = useAIAssistant()
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen bg-[#1C4645] text-foreground flex flex-col">
       <Navbar />
       <div className="flex flex-1 relative overflow-hidden">
         {/* Left Sidebar - Animated Placeholder */}
