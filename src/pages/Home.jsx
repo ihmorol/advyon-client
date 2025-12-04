@@ -1,7 +1,9 @@
+import DynamicBackground from "@/components/ui/DynamicBackground";
 import { SignOutButton, SignedIn, SignedOut } from "@clerk/clerk-react";
 
 export default function Home() {
   return (
+    <DynamicBackground>
     <div className="relative flex flex-col items-center justify-center h-screen w-screen">
       <h1 className="text-9xl font-bold">ADVYON</h1>
       <SignedIn>
@@ -15,11 +17,12 @@ export default function Home() {
       </SignedIn>
       <SignedOut>
         <div className="absolute top-5 right-5 z-50">
-          <a href="/login" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <a href="/auth/signin" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             Sign In
           </a>
         </div>
       </SignedOut>
     </div>
+    </DynamicBackground>
   );
 }

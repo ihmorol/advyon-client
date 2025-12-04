@@ -14,7 +14,7 @@ const MouseSpotlight = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
 
-  const background = useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(58, 117, 115, 0.4), transparent 80%)`;
+  const background = useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(58, 117, 115, 0.15), transparent 80%)`;
 
   return (
     <motion.div
