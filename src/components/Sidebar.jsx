@@ -20,7 +20,7 @@ const sidebarItems = [
   },
   {
     title: "Cases",
-    href: "/dashboard/cases",
+    href: "/dashboard/workspace",
     icon: FileText,
   },
   {
@@ -44,7 +44,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
   const location = useLocation()
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ width: 80 }}
       animate={{ width: isCollapsed ? 80 : 250 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -72,14 +72,14 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
-              
+
               <div className="min-w-[20px] flex justify-center">
                 <item.icon className={cn(
                   "h-5 w-5 z-10 transition-colors",
                   isActive ? "text-[#5cdbd6]" : "text-[#B0C4C3] group-hover:text-white"
                 )} />
               </div>
-              
+
               <AnimatePresence>
                 {!isCollapsed && (
                   <motion.span
@@ -96,9 +96,9 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
                   </motion.span>
                 )}
               </AnimatePresence>
-              
+
               {isCollapsed && isActive && (
-                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#5cdbd6] rounded-r-full" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#5cdbd6] rounded-r-full" />
               )}
             </Link>
           )
@@ -106,8 +106,8 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
       </div>
 
       <div className="p-4 border-t border-[#3A7573]/30 overflow-hidden space-y-3">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className={cn(
             "w-full justify-start hover:bg-[#3A7573]/20 hover:text-white text-[#B0C4C3] px-2",
             isCollapsed && "justify-center"
@@ -127,7 +127,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
             )}
           </AnimatePresence>
         </Button>
-        
+
         {/* Copyright Message */}
         <AnimatePresence>
           {!isCollapsed && (
