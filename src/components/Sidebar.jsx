@@ -51,7 +51,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className={cn(
-        "fixed left-0 top-16 bottom-0 z-40 border-r border-[#3A7573]/30 bg-[#1C4645] text-white flex flex-col shadow-2xl",
+        "fixed left-0 top-16 bottom-0 z-40 border-r border-border/30 bg-primary text-primary-foreground flex flex-col shadow-2xl",
         className
       )}
     >
@@ -62,12 +62,12 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
             <Link
               key={item.href}
               to={item.href}
-              className="relative flex items-center px-4 py-3 mx-2 rounded-lg transition-colors group hover:bg-[#3A7573]/20"
+              className="relative flex items-center px-4 py-3 mx-2 rounded-lg transition-colors group hover:bg-accent/20"
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute inset-0 bg-[#3A7573]/30 rounded-lg border border-[#3A7573]/50"
+                  className="absolute inset-0 bg-accent/30 rounded-lg border border-accent/50"
                   initial={false}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
@@ -76,7 +76,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
               <div className="min-w-[20px] flex justify-center">
                 <item.icon className={cn(
                   "h-5 w-5 z-10 transition-colors",
-                  isActive ? "text-[#5cdbd6]" : "text-[#B0C4C3] group-hover:text-white"
+                  isActive ? "text-accent" : "text-muted-foreground group-hover:text-white"
                 )} />
               </div>
               
@@ -89,7 +89,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
                     transition={{ duration: 0.2 }}
                     className={cn(
                       "ml-3 text-sm font-medium z-10 whitespace-nowrap overflow-hidden",
-                      isActive ? "text-white" : "text-[#B0C4C3] group-hover:text-white"
+                      isActive ? "text-white" : "text-muted-foreground group-hover:text-white"
                     )}
                   >
                     {item.title}
@@ -98,18 +98,18 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
               </AnimatePresence>
               
               {isCollapsed && isActive && (
-                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#5cdbd6] rounded-r-full" />
+                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent rounded-r-full" />
               )}
             </Link>
           )
         })}
       </div>
 
-      <div className="p-4 border-t border-[#3A7573]/30 overflow-hidden space-y-3">
+      <div className="p-4 border-t border-border/30 overflow-hidden space-y-3">
         <Button 
           variant="ghost" 
           className={cn(
-            "w-full justify-start hover:bg-[#3A7573]/20 hover:text-white text-[#B0C4C3] px-2",
+            "w-full justify-start hover:bg-accent/20 hover:text-white text-muted-foreground px-2",
             isCollapsed && "justify-center"
           )}
         >
@@ -138,7 +138,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
               transition={{ duration: 0.2 }}
               className="px-2 text-center"
             >
-              <p className="text-xs text-[#B0C4C3]/50">
+              <p className="text-xs text-muted-foreground/50">
                 © 2025 Advyon Inc.
                 <br />
                 All rights reserved.
