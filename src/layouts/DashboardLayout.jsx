@@ -28,13 +28,13 @@ const DashboardLayout = () => {
           onMouseLeave={() => setIsSidebarCollapsed(true)}
         />
         
-        {/* Main content */}
-        <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-4rem)] relative z-10 min-w-0">
+        <main className="flex-1 pr-3 pb-3 overflow-y-auto h-[calc(100vh-4rem)] relative z-10">
            {/* Background Effects */}
-           <div className="absolute inset-0 bg-gradient-to-br from-background via-secondary to-muted -z-10 fixed"></div>
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 -z-10 mix-blend-overlay fixed"></div>
+           <div className="absolute inset-0 bg-primary -z-10 fixed"></div>
            
-          <Outlet />
+          <div className="bg-white rounded-2xl shadow-2xl min-h-full p-6 text-gray-800">
+            <Outlet />
+          </div>
         </main>
 
         {/* AI Panel - Animated Placeholder (like sidebar) */}

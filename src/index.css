@@ -4,65 +4,67 @@
 
 @layer base {
   :root {
-    --background: 176 70% 6%;          /* Deepest Teal #051C1B */
-    --foreground: 0 0% 100%;           /* White #FFFFFF */
+    /* Advyon Teal Palette - Default (Dark-ish) */
+    --background: 176 70% 6%; /* #051C1B */
+    --foreground: 0 0% 100%; /* #ffffff */
 
-    --card: 176 70% 6%;                /* Deepest Teal #051C1B */
-    --card-foreground: 0 0% 100%;      /* White #FFFFFF */
+    --card: 176 70% 6%; /* #051C1B */
+    --card-foreground: 0 0% 100%; /* #ffffff */
 
-    --popover: 176 70% 6%;             /* Deepest Teal #051C1B */
-    --popover-foreground: 0 0% 100%;   /* White #FFFFFF */
+    --popover: 176 70% 6%; /* #051C1B */
+    --popover-foreground: 0 0% 100%; /* #ffffff */
 
-    --primary: 178 43% 19%;            /* Advyon Teal #1C4645 */
-    --primary-foreground: 0 0% 100%;   /* White #FFFFFF */
+    --primary: 178 43% 19%; /* #1C4645 */
+    --primary-foreground: 0 0% 100%; /* #ffffff */
 
-    --secondary: 178 42% 14%;          /* Dark Teal #153433 */
-    --secondary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --secondary: 178 42% 14%; /* #153433 */
+    --secondary-foreground: 0 0% 100%; /* #ffffff */
 
-    --muted: 178 42% 14%;              /* Dark Teal #153433 */
-    --muted-foreground: 176 13% 73%;   /* Soft Teal #B0C4C3 */
+    --muted: 178 42% 14%; /* #153433 */
+    --muted-foreground: 176 13% 73%; /* #B0C4C3 */
 
-    --accent: 176 34% 34%;             /* Accent Teal #3A7573 */
-    --accent-foreground: 0 0% 100%;    /* White #FFFFFF */
+    --accent: 176 34% 34%; /* #3A7573 */
+    --accent-foreground: 0 0% 100%; /* #ffffff */
 
-    --destructive: 0 84.2% 60.2%;      /* Red */
-    --destructive-foreground: 0 0% 100%; /* White */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 176 34% 34%;             /* Accent Teal #3A7573 */
-    --input: 176 34% 34%;              /* Accent Teal #3A7573 */
-    --ring: 176 34% 34%;               /* Accent Teal #3A7573 */
+    --border: 176 34% 34%; /* #3A7573 */
+    --input: 176 34% 34%; /* #3A7573 */
+    --ring: 176 34% 34%; /* #3A7573 */
 
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* rounded-xl/2xl preference */
   }
 
   .dark {
-    --background: 176 70% 6%;          /* Deepest Teal #051C1B */
-    --foreground: 0 0% 100%;           /* White #FFFFFF */
+    /* Same as root for now, enforcing the brand look */
+    --background: 176 70% 6%;
+    --foreground: 0 0% 100%;
 
-    --card: 176 70% 6%;                /* Deepest Teal #051C1B */
-    --card-foreground: 0 0% 100%;      /* White #FFFFFF */
+    --card: 176 70% 6%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 176 70% 6%;             /* Deepest Teal #051C1B */
-    --popover-foreground: 0 0% 100%;   /* White #FFFFFF */
+    --popover: 176 70% 6%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 178 43% 19%;            /* Advyon Teal #1C4645 */
-    --primary-foreground: 0 0% 100%;   /* White #FFFFFF */
+    --primary: 178 43% 19%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 178 42% 14%;          /* Dark Teal #153433 */
-    --secondary-foreground: 0 0% 100%; /* White #FFFFFF */
+    --secondary: 178 42% 14%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 178 42% 14%;              /* Dark Teal #153433 */
-    --muted-foreground: 176 13% 73%;   /* Soft Teal #B0C4C3 */
+    --muted: 178 42% 14%;
+    --muted-foreground: 176 13% 73%;
 
-    --accent: 176 34% 34%;             /* Accent Teal #3A7573 */
-    --accent-foreground: 0 0% 100%;    /* White #FFFFFF */
+    --accent: 176 34% 34%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;      /* Dark Red */
-    --destructive-foreground: 0 0% 100%; /* White */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 176 34% 34%;             /* Accent Teal #3A7573 */
-    --input: 176 34% 34%;              /* Accent Teal #3A7573 */
-    --ring: 176 34% 34%;               /* Accent Teal #3A7573 */
+    --border: 176 34% 34%;
+    --input: 176 34% 34%;
+    --ring: 176 34% 34%;
   }
 }
 
