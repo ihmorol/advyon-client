@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { 
   CircleCheckIcon, 
   CircleHelpIcon, 
@@ -12,7 +12,8 @@ import {
   Users, 
   LayoutDashboard,
   Sparkles,
-  Search // Imported Search Icon
+  Search,
+  Menu
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { useClerk } from "@clerk/clerk-react"
@@ -35,12 +36,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input" // Assumed standard shadcn Input component
+import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { sidebarItems } from "@/components/Sidebar"
 
-// ... (previous data arrays: caseManagement, communityFeatures, languages) ...
-// For brevity, I'm keeping the data arrays as they were in the previous response.
 const caseManagement = [
   { title: "Active Cases", href: "/cases/active", description: "View and manage ongoing legal matters and deadlines." },
   { title: "Smart Intake", href: "/cases/new", description: "Upload documents with AI-powered OCR and auto-sorting." },
@@ -66,18 +71,20 @@ export function Navbar() {
   const isMobile = useIsMobile()
   const { signOut, user } = useClerk()
   const [selectedLanguage, setSelectedLanguage] = React.useState("en")
+  const location = useLocation()
+  const isDashboard = location.pathname.startsWith('/dashboard')
 
   return (
     <motion.div 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className="w-full border-b border-border/30 bg-primary text-primary-foreground relative z-50"
+      className="w-full bg-primary text-primary-foreground relative z-50"
     >
       <div className="flex h-16 items-center px-4 w-full">
         <div className="flex items-center gap-4 flex-1">
           {/* Logo Section */}
-          <div className="mr-4 hidden md:flex">
+          <div className="mr-4 flex">
             <Link to="/" className="mr-6 flex items-center space-x-2">
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -92,82 +99,141 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Main Navigation */}
-          <NavigationMenu viewport={isMobile}>
-            <NavigationMenuList className="flex-wrap">
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
-                  <Link to="/dashboard" className="flex items-center gap-2">
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+          {/* Main Navigation - Desktop */}
+          <div className="hidden md:block">
+            <NavigationMenu viewport={isMobile}>
+              <NavigationMenuList className="flex-wrap">
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
+                    <Link to="/dashboard" className="flex items-center gap-2">
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
 
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white data-[active]:bg-accent/20 data-[state=open]:bg-accent/20">
-                  <span className="flex items-center gap-2"><FileText className="w-4 h-4"/> Cases</span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-primary border border-border/30">
-                    {caseManagement.map((item) => (
-                      <ListItem key={item.title} title={item.title} href={item.href}>
-                        {item.description}
-                      </ListItem>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white data-[active]:bg-accent/20 data-[state=open]:bg-accent/20">
+                    <span className="flex items-center gap-2"><FileText className="w-4 h-4"/> Cases</span>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-primary border border-border/30">
+                      {caseManagement.map((item) => (
+                        <ListItem key={item.title} title={item.title} href={item.href}>
+                          {item.description}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
 
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white data-[active]:bg-accent/20 data-[state=open]:bg-accent/20">
-                  <span className="flex items-center gap-2"><Users className="w-4 h-4"/> Community</span>
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                   <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] bg-primary border border-border/30">
-                    <li className="row-span-3">
-                      <NavigationMenuLink asChild>
-                        <Link
-                          className="flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b from-accent/20 to-accent/10 p-4 no-underline outline-none transition-all duration-200 select-none hover:shadow-md focus:shadow-md md:p-6 border border-border/30"
-                          to="/community"
-                        >
-                          <div className="mb-2 text-lg font-medium sm:mt-4 text-white">Community Hub</div>
-                          <p className="text-muted-foreground text-sm leading-tight">Collaborate, share insights, and discuss legal topics.</p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                    {communityFeatures.map((item) => (
-                      <ListItem key={item.title} href={item.href} title={item.title}>{item.description}</ListItem>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white data-[active]:bg-accent/20 data-[state=open]:bg-accent/20">
+                    <span className="flex items-center gap-2"><Users className="w-4 h-4"/> Community</span>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] bg-primary border border-border/30">
+                      <li className="row-span-3">
+                        <NavigationMenuLink asChild>
+                          <Link
+                            className="flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b from-accent/20 to-accent/10 p-4 no-underline outline-none transition-all duration-200 select-none hover:shadow-md focus:shadow-md md:p-6 border border-border/30"
+                            to="/community"
+                          >
+                            <div className="mb-2 text-lg font-medium sm:mt-4 text-white">Community Hub</div>
+                            <p className="text-muted-foreground text-sm leading-tight">Collaborate, share insights, and discuss legal topics.</p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      {communityFeatures.map((item) => (
+                        <ListItem key={item.title} href={item.href} title={item.title}>{item.description}</ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
-                  <Link to="/legal-database" className="flex items-center gap-2">
-                    <Scale className="w-4 h-4" />
-                    Legal DB
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
-                  <Link to="/ai-assistant" className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-accent-foreground" />
-                    AI Tools
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
+                    <Link to="/legal-database" className="flex items-center gap-2">
+                      <Scale className="w-4 h-4" />
+                      Legal DB
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
+                    <Link to="/ai-assistant" className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-accent-foreground" />
+                      AI Tools
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
         </div>
 
         {/* Right side: Search and User Controls */}
         <div className="flex items-center gap-3 ml-auto">
           
-          {/* SEARCH BAR ADDED HERE */}
+          {/* Mobile Menu Trigger */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-white hover:bg-accent/20">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="bg-primary border-r border-border/30 text-white w-[300px] sm:w-[400px] overflow-y-auto">
+              <div className="flex flex-col gap-6 py-6">
+                <Link to="/" className="flex items-center space-x-2 mb-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent/80">
+                    <Scale className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="font-bold text-lg tracking-tight uppercase">ADVYON</span>
+                </Link>
+
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-sm font-medium text-muted-foreground px-2">Menu</h3>
+                  <Link to="/dashboard" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
+                    <LayoutDashboard className="w-4 h-4" /> Dashboard
+                  </Link>
+                   <Link to="/cases" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
+                    <FileText className="w-4 h-4" /> Cases
+                  </Link>
+                   <Link to="/community" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
+                    <Users className="w-4 h-4" /> Community
+                  </Link>
+                   <Link to="/legal-database" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
+                    <Scale className="w-4 h-4" /> Legal DB
+                  </Link>
+                   <Link to="/ai-assistant" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
+                    <Sparkles className="w-4 h-4 text-accent-foreground" /> AI Tools
+                  </Link>
+                </div>
+
+                {isDashboard && (
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-sm font-medium text-muted-foreground px-2">Dashboard</h3>
+                    {sidebarItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        to={item.href}
+                        className={cn(
+                          "flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm",
+                          location.pathname === item.href ? "bg-accent/30 text-white" : "text-muted-foreground"
+                        )}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {item.title}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* SEARCH BAR */}
           <div className="relative hidden md:block w-full max-w-sm mr-2">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -180,7 +246,6 @@ export function Navbar() {
           <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-white hover:bg-accent/20">
             <Search className="h-5 w-5" />
           </Button>
-          {/* END SEARCH BAR */}
 
           {/* Language Selector */}
           <DropdownMenu>

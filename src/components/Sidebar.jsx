@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const sidebarItems = [
+export const sidebarItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
@@ -51,7 +51,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       className={cn(
-        "fixed left-0 top-16 bottom-0 z-40 border-r border-border/30 bg-primary text-primary-foreground flex flex-col shadow-2xl",
+        "fixed left-0 top-16 bottom-0 z-40 bg-primary text-primary-foreground flex flex-col shadow-2xl",
         className
       )}
     >
