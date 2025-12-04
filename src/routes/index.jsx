@@ -1,35 +1,37 @@
-import { createBrowserRouter } from "react-router-dom";
-import AppLayout from "@/layouts/AppLayout";
-import Home from "@/pages/Home";
-import SignInPage from "@/pages/auth/SignInPage";
-import SignUpPage from "@/pages/auth/SignUpPage";
-import DashboardLayout from "@/layouts/DashboardLayout";
-import Dashboard from "@/pages/Dashboard";
-import OnboardingPage from "@/pages/OnboardingPage";
+import { createBrowserRouter } from 'react-router-dom';
+import AppLayout from '@/layouts/AppLayout';
+import Home from '@/pages/Home';
+import SignInPage from '@/pages/auth/SignInPage';
+import SignUpPage from '@/pages/auth/SignUpPage';
+import DashboardLayout from '@/layouts/DashboardLayout';
+import Dashboard from '@/pages/Dashboard';
+import OnboardingPage from '@/pages/OnboardingPage';
 
-import AuthLayout from "@/layouts/AuthLayout";
+import AuthLayout from '@/layouts/AuthLayout';
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <AppLayout />,
     children: [
       { index: true, element: <Home /> },
       {
-        path: "auth",
+        path: 'auth',
         element: <AuthLayout />,
         children: [
-          { path: "signin", element: <SignInPage /> },
-          { path: "signup", element: <SignUpPage /> },
+          { path: 'signin', element: <SignInPage /> },
+          { path: 'signup', element: <SignUpPage /> },
         ],
+      },
+      {
+        path: 'onboarding',
+        element: <OnboardingPage />,
       },
     ],
   },
   {
-    path: "/dashboard",
+    path: '/dashboard',
     element: <DashboardLayout />,
-    children: [
-      { index: true, element: <Dashboard /> },
-    ],
+    children: [{ index: true, element: <Dashboard /> }],
   },
 ]);
