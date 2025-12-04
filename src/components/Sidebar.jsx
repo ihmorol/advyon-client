@@ -105,7 +105,7 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
         })}
       </div>
 
-      <div className="p-4 border-t border-[#3A7573]/30 overflow-hidden">
+      <div className="p-4 border-t border-[#3A7573]/30 overflow-hidden space-y-3">
         <Button 
           variant="ghost" 
           className={cn(
@@ -127,6 +127,25 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
             )}
           </AnimatePresence>
         </Button>
+        
+        {/* Copyright Message */}
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="px-2 text-center"
+            >
+              <p className="text-xs text-[#B0C4C3]/50">
+                © 2025 Advyon Inc.
+                <br />
+                All rights reserved.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   )
