@@ -24,7 +24,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
         <div className="flex flex-1 overflow-hidden relative z-20 animate-in fade-in slide-in-from-right-4 duration-500 h-full">
 
             {/* LEFT SIDEBAR - Deepest Teal (#051C1B) */}
-            <aside className={cn("bg-[#051C1B] border-r border-[#3A7573] flex flex-col transition-all duration-300 ease-in-out", showLeftSidebar ? "w-72 translate-x-0 opacity-100" : "w-0 -translate-x-full opacity-0 overflow-hidden border-none")}>
+            <aside className={cn("bg-primary border-r border-[#3A7573] flex flex-col transition-all duration-300 ease-in-out", showLeftSidebar ? "w-72 translate-x-0 opacity-100" : "w-0 -translate-x-full opacity-0 overflow-hidden border-none")}>
                 <div className="w-72 flex flex-col h-full overflow-hidden">
                     <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
 
@@ -44,7 +44,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
 
                             {/* Dropdown Menu */}
                             {isCaseSwitcherOpen && (
-                                <div className="absolute top-full left-0 w-full mt-2 bg-[#051C1B] border border-[#3A7573] rounded-lg shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+                                <div className="absolute top-full left-0 w-full mt-2 bg-primary border border-[#3A7573] rounded-lg shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
                                     <div className="p-2 bg-[#153433] border-b border-[#3A7573]">
                                         <p className="text-[10px] text-[#B0C4C3] font-bold uppercase">Switch Case</p>
                                     </div>
@@ -59,7 +59,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                                 <div className="text-[10px] text-[#B0C4C3]">{c.ref} • {c.urgency} priority</div>
                                             </button>
                                         ))}
-                                        <button className="w-full text-left px-3 py-2 text-xs text-[#3A7573] hover:underline border-t border-[#3A7573] bg-[#051C1B]">
+                                        <button className="w-full text-left px-3 py-2 text-xs text-[#3A7573] hover:underline border-t border-[#3A7573] bg-primary">
                                             View All Cases in Dashboard
                                         </button>
                                     </div>
@@ -93,7 +93,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                             })}
                         </div>
                     </div>
-                    <div className="mt-auto p-4 border-t border-[#3A7573] bg-[#051C1B]">
+                    <div className="mt-auto p-4 border-t border-[#3A7573] bg-primary">
                         <button className="w-full flex items-center justify-center gap-2 py-2 text-xs text-[#B0C4C3] hover:text-white transition-colors"><Settings size={14} /> Workspace Settings</button>
                     </div>
                 </div>
