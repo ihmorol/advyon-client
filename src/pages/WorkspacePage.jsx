@@ -43,6 +43,7 @@ const WorkspacePage = () => {
                             <WorkspaceView
                                 activeCase={activeCase || ALL_CASES[0]}
                                 onSwitchCase={handleCaseSelect}
+                                onBack={() => setCurrentView('dashboard')}
                                 searchTerm={searchTerm}
                             />
                         )}

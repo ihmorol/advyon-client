@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
-    ChevronDown, Users, Folder, Settings, PanelLeft, PanelRight, Plus, ChevronRight, Search, FolderOpen
+    ChevronDown, Users, Folder, Settings, PanelLeft, PanelRight, Plus, ChevronRight, Search, FolderOpen, ArrowLeft
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import DocumentItem from './DocumentItem';
 import TimerWidget from './TimerWidget';
 import { CASE_FOLDERS_DATA, ALL_CASES } from '../mockData';
 
-const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm }) => {
+const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const [showLeftSidebar, setShowLeftSidebar] = useState(true);
     const [isCaseSwitcherOpen, setIsCaseSwitcherOpen] = useState(false);
     const [breadcrumbs, setBreadcrumbs] = useState([activeCase.title, 'Evidence', 'Witness Statements']);
@@ -99,10 +99,13 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm }) => {
                 </div>
             </aside>
 
-            {/* CENTER PANEL - Main BG #051C1B */}
-            <main className="flex-1 flex flex-col min-w-0 bg-[#051C1B] relative transition-all duration-300">
-                <div className="h-14 border-b border-[#3A7573] flex items-center justify-between px-4 sm:px-6 bg-[#051C1B]/95 backdrop-blur-sm">
+            {/* CENTER PANEL - Main BG bg-primary */}
+            <main className="flex-1 flex flex-col min-w-0 bg-primary relative transition-all duration-300">
+                <div className="h-14 border-b border-[#3A7573] flex items-center justify-between px-4 sm:px-6 bg-primary/95 backdrop-blur-sm">
                     <div className="flex items-center text-sm text-[#B0C4C3] gap-2 overflow-x-auto no-scrollbar mask-gradient-right">
+                        <button onClick={onBack} className="p-1.5 rounded-md hover:bg-[#153433] text-[#3A7573] hover:text-white transition-colors mr-2 flex-shrink-0" title="Back to Dashboard">
+                            <ArrowLeft size={18} />
+                        </button>
                         <button onClick={() => setShowLeftSidebar(!showLeftSidebar)} className={cn("p-1.5 rounded-md hover:bg-[#153433] text-[#3A7573] transition-colors mr-2 flex-shrink-0", !showLeftSidebar && "bg-[#153433]")}><PanelLeft size={18} /></button>
                         {breadcrumbs.map((item, index) => (
                             <React.Fragment key={index}>
