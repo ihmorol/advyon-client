@@ -21,12 +21,7 @@ const WorkspacePage = () => {
 
             <div className="flex flex-1 relative">
                 {/* Animated Placeholder for the fixed sidebar width */}
-                <motion.div
-                    initial={{ width: 80 }}
-                    animate={{ width: isSidebarCollapsed ? 80 : 250 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="hidden md:block shrink-0"
-                />
+
 
                 <Sidebar
                     className="hidden md:flex bg-primary"
