@@ -10,7 +10,9 @@ import { CASE_FOLDERS_DATA, ALL_CASES } from '../mockData';
 const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const [showLeftSidebar, setShowLeftSidebar] = useState(true);
     const [isCaseSwitcherOpen, setIsCaseSwitcherOpen] = useState(false);
-    const [breadcrumbs, setBreadcrumbs] = useState([activeCase.title, 'Evidence', 'Witness Statements']);
+    const [breadcrumbs, setBreadcrumbs] = useState([activeCase.title, 'Evidence']);
+    const [expandedFolders, setExpandedFolders] = useState(['Evidence', 'Witness Statements']);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const currentFolder = breadcrumbs[breadcrumbs.length - 1];
     const currentFiles = CASE_FOLDERS_DATA[currentFolder] || [];
@@ -19,6 +21,26 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const filteredFiles = currentFiles.filter(f =>
         f.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const handleFolderClick = (folder) => {
+        setBreadcrumbs([activeCase.title, folder]);
+        setSelectedFile(null); // Clear file selection when switching folders via header/click
+
+        // Toggle folder expansion
+        setExpandedFolders(prev =>
+            prev.includes(folder)
+                ? prev.filter(f => f !== folder)
+                : [...prev, folder]
+        );
+    };
+
+    const handleFileClick = (folder, file) => {
+        setBreadcrumbs([activeCase.title, folder]);
+        if (!expandedFolders.includes(folder)) {
+            setExpandedFolders(prev => [...prev, folder]);
+        }
+        setSelectedFile(file);
+    };
 
     return (
         <div className="flex flex-1 overflow-hidden relative z-20 animate-in fade-in slide-in-from-right-4 duration-500 h-full">
@@ -79,16 +101,55 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                             <div className="relative w-8 h-4 bg-[#051C1B] rounded-full cursor-pointer"><div className="absolute right-0.5 top-0.5 w-3 h-3 bg-[#3A7573] rounded-full shadow-sm"></div></div>
                         </div>
 
-                        {/* Folder Navigation */}
+                        {/* Folder Navigation Tree */}
                         <div className="mt-6 space-y-1">
                             <div className="flex items-center gap-2 text-xs font-semibold text-[#B0C4C3] uppercase tracking-wider mb-2 px-2">Folders</div>
                             {Object.keys(CASE_FOLDERS_DATA).map((folder) => {
-                                const isSelected = breadcrumbs.includes(folder);
+                                const isExpanded = expandedFolders.includes(folder);
+                                const isCurrent = currentFolder === folder;
+                                const files = CASE_FOLDERS_DATA[folder];
+
                                 return (
-                                    <button key={folder} onClick={() => setBreadcrumbs([activeCase.title, folder])} className={cn("w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-all group", isSelected ? "bg-[#153433] text-white border border-[#3A7573]/50" : "text-[#B0C4C3] hover:bg-[#153433]/50 hover:text-white")}>
-                                        <div className="flex items-center gap-2"><Folder size={16} className={isSelected ? "text-white" : "text-[#3A7573] group-hover:text-white"} />{folder}</div>
-                                        <span className="text-[10px] bg-[#051C1B] px-1.5 rounded text-[#B0C4C3]">{CASE_FOLDERS_DATA[folder].length}</span>
-                                    </button>
+                                    <div key={folder} className="mb-1">
+                                        <button
+                                            onClick={() => handleFolderClick(folder)}
+                                            className={cn(
+                                                "w-full flex items-center justify-between px-2 py-1.5 text-sm rounded-md transition-all group hover:bg-[#153433]/50",
+                                                isCurrent ? "text-white" : "text-[#B0C4C3]"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <ChevronRight size={14} className={cn("transition-transform duration-200", isExpanded && "rotate-90")} />
+                                                <Folder size={16} className={isCurrent ? "text-white" : "text-[#3A7573] group-hover:text-white"} />
+                                                <span className="truncate">{folder}</span>
+                                            </div>
+                                            <span className="text-[10px] bg-[#051C1B] px-1.5 rounded text-[#B0C4C3]">{files.length}</span>
+                                        </button>
+
+                                        {/* Nested Files */}
+                                        {isExpanded && (
+                                            <div className="ml-6 mt-1 space-y-0.5 border-l border-[#3A7573]/30 pl-2">
+                                                {files.map((file, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={(e) => { e.stopPropagation(); handleFileClick(folder, file); }}
+                                                        className={cn(
+                                                            "w-full text-left px-2 py-1 text-xs rounded-md transition-colors truncate flex items-center gap-2",
+                                                            selectedFile?.name === file.name
+                                                                ? "bg-[#153433] text-white"
+                                                                : "text-[#B0C4C3] hover:text-white hover:bg-[#153433]/30"
+                                                        )}
+                                                    >
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-[#3A7573] flex-shrink-0"></span>
+                                                        {file.name}
+                                                    </button>
+                                                ))}
+                                                {files.length === 0 && (
+                                                    <div className="px-2 py-1 text-[10px] text-[#B0C4C3]/50 italic">No files</div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 );
                             })}
                         </div>
@@ -127,22 +188,39 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                     </div>
 
                     <div className="space-y-1">
-                        <h3 className="text-xs font-semibold text-[#B0C4C3] uppercase tracking-wider mb-3 px-2 flex items-center justify-between">
-                            <span>{currentFolder}</span>
-                            <span className="text-[10px] bg-[#153433] px-2 py-0.5 rounded-full text-white">{filteredFiles.length} items</span>
-                        </h3>
-
-                        {filteredFiles.length > 0 ? (
-                            filteredFiles.map((file, idx) => (
-                                <DocumentItem key={idx} {...file} />
-                            ))
-                        ) : (
-                            <div className="text-center py-12 opacity-50">
-                                <FolderOpen size={48} className="mx-auto text-[#3A7573] mb-2" />
-                                <p className="text-sm text-[#B0C4C3]">
-                                    {searchTerm ? `No files match "${searchTerm}"` : "No files in this folder yet."}
-                                </p>
+                        {selectedFile ? (
+                            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                                        <DocumentItem name={selectedFile.name} type={selectedFile.type} date={selectedFile.date} status={selectedFile.status} compact />
+                                    </h3>
+                                    <button onClick={() => setSelectedFile(null)} className="text-xs text-[#3A7573] hover:text-white underline">Back to list</button>
+                                </div>
+                                <div className="bg-[#153433]/30 border border-[#3A7573] rounded-xl p-8 flex flex-col items-center justify-center min-h-[300px] text-[#B0C4C3]">
+                                    <p>File Preview for <strong>{selectedFile.name}</strong></p>
+                                    <p className="text-xs opacity-50 mt-2">Preview not available in this demo.</p>
+                                </div>
                             </div>
+                        ) : (
+                            <>
+                                <h3 className="text-xs font-semibold text-[#B0C4C3] uppercase tracking-wider mb-3 px-2 flex items-center justify-between">
+                                    <span>{currentFolder}</span>
+                                    <span className="text-[10px] bg-[#153433] px-2 py-0.5 rounded-full text-white">{filteredFiles.length} items</span>
+                                </h3>
+
+                                {filteredFiles.length > 0 ? (
+                                    filteredFiles.map((file, idx) => (
+                                        <DocumentItem key={idx} {...file} onClick={() => setSelectedFile(file)} />
+                                    ))
+                                ) : (
+                                    <div className="text-center py-12 opacity-50">
+                                        <FolderOpen size={48} className="mx-auto text-[#3A7573] mb-2" />
+                                        <p className="text-sm text-[#B0C4C3]">
+                                            {searchTerm ? `No files match "${searchTerm}"` : "No files in this folder yet."}
+                                        </p>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
