@@ -1,5 +1,5 @@
 import { useAuth, useUser } from "@clerk/clerk-react";
-import api from "../services/api";
+import api from "../lib/api/api";
 import { useEffect } from "react";
 
 export const useAuthApi = () => {
