@@ -19,7 +19,7 @@ const SignInForm = () => {
           },
         }}
         signUpUrl="/auth/signup"
-        forceRedirectUrl="/dashboard"
+        forceRedirectUrl="/auth/success"
       />
     </div>
   );

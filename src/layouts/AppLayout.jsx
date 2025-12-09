@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { Toaster } from "sonner";
 
 export default function AppLayout() {
   console.log("Rendering AppLayout");
@@ -7,6 +8,7 @@ export default function AppLayout() {
       <main className="mx-auto">
         <Outlet />
       </main>
+      <Toaster />
     </div>
   );
 }
