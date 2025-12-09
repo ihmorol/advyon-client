@@ -55,7 +55,7 @@ const DashboardView = ({ onSelectCase, searchTerm }) => {
 
                     {/* Right Sidebar - Global Feed */}
                     <div className="space-y-6">
-                        <div className="bg-[#051C1B] border border-[#3A7573] rounded-xl p-5">
+                        <div className="bg-primary border border-[#3A7573] rounded-xl p-5">
                             <h2 className="text-sm font-bold text-[#B0C4C3] uppercase tracking-wider mb-4 flex items-center gap-2">
                                 <Clock size={14} className="text-[#3A7573]" /> Recent Activity
                             </h2>
@@ -74,7 +74,7 @@ const DashboardView = ({ onSelectCase, searchTerm }) => {
                             </button>
                         </div>
 
-                        <div className="bg-[#153433] border border-[#3A7573] rounded-xl p-5">
+                        <div className="bg-primary border border-[#3A7573] rounded-xl p-5">
                             <h2 className="text-sm font-bold text-[#B0C4C3] uppercase tracking-wider mb-2">Daily Summary</h2>
                             <div className="text-2xl font-bold text-white mb-1">3 Deadlines</div>
                             <p className="text-xs text-[#B0C4C3] mb-3">You have 3 critical deadlines approaching in the next 48 hours.</p>
