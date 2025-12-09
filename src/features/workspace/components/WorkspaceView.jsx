@@ -11,7 +11,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const [showLeftSidebar, setShowLeftSidebar] = useState(true);
     const [isCaseSwitcherOpen, setIsCaseSwitcherOpen] = useState(false);
     const [breadcrumbs, setBreadcrumbs] = useState([activeCase.title, 'Evidence']);
-    const [expandedFolders, setExpandedFolders] = useState(['Evidence', 'Witness Statements']);
+    const [expandedFolders, setExpandedFolders] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
 
     const currentFolder = breadcrumbs[breadcrumbs.length - 1];
