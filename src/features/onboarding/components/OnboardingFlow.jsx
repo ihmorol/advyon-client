@@ -18,70 +18,103 @@ import SelectInput from './SelectInput';
 import { FloatingParticles, MouseSpotlight } from './VisualEffects';
 import RippleBackground from '@/components/ui/RippleBackground';
 
+// ✅ import your zustand store
+import { useOnboardingStore } from '@/store/onboarding';
+
 export default function OnboardingFlow() {
-    const [step, setStep] = useState(1);
+    const {
+        role,
+        profile,
+        step,
+        setStep,
+        setRole,
+        updateProfile,
+        resetOnboarding,
+    } = useOnboardingStore();
+
     const [direction, setDirection] = useState(1); // 1 for forward, -1 for back
     const [loading, setLoading] = useState(false);
 
-    // Form State
-    const [formData, setFormData] = useState({
-        language: 'English',
-        fullName: '',
-        username: '',
-        isLawyer: false,
-        barNumber: '',
-        barCouncil: '',
-        experience: '',
-        practiceArea: 'Corporate Law'
-    });
-
-    const totalSteps = formData.isLawyer ? 5 : 4;
+    const isLawyer = role === 'lawyer';
+    const totalSteps = isLawyer ? 5 : 4;
 
     // Validation Logic
     const isStepValid = () => {
-        if (step === 2 && !formData.fullName.trim()) return false;
-        if (step === 3 && !formData.username.trim()) return false;
+        if (step === 2 && !profile.fullName.trim()) return false;
+        if (step === 3 && !profile.displayName.trim()) return false;
         return true;
     };
 
     const nextStep = () => {
         if (!isStepValid()) return;
 
-        // Logic for Step 4 (Role Selection)
+        // Step 4: Role selection
         if (step === 4) {
-            if (!formData.isLawyer) {
-                // If they click Continue but haven't selected Lawyer, treat as User
-                finishOnboarding('user');
+            // If user didn't choose lawyer, treat as client and finish
+            if (!isLawyer) {
+                finishOnboarding('client');
                 return;
             }
         }
 
-        // Logic for Step 5 (Credentials)
+        // Step 5: Lawyer credentials
         if (step === 5) {
             finishOnboarding('lawyer');
             return;
         }
 
         setDirection(1);
-        setStep(prev => prev + 1);
+        setStep(step + 1);
     };
 
     const skipStep = () => {
-        // "Skip all steps" -> Default to User Dashboard immediately
-        finishOnboarding('user');
+        // "Skip all steps" -> Default to Client/User
+        finishOnboarding('client');
     };
 
-    const finishOnboarding = (role) => {
+    const finishOnboarding = async (finalRole) => {
         setLoading(true);
+
+        // ✅ Build payload matching backend onboardValidation
+        const payload = {
+            role: finalRole, // 'client' | 'lawyer'
+            profile: {
+                fullName: profile.fullName,
+                displayName: profile.displayName,
+                phone: profile.phone || undefined,
+                avatarUrl: profile.avatarUrl || undefined,
+                preferredLanguage: profile.preferredLanguage || 'English',
+                timezone: profile.timezone || undefined,
+                address: profile.address || undefined,
+
+                // Only send lawyer fields if lawyer
+                barRegistrationNumber:
+                    finalRole === 'lawyer' ? profile.barRegistrationNumber || undefined : undefined,
+                barCouncilName:
+                    finalRole === 'lawyer' ? profile.barCouncilName || undefined : undefined,
+                yearsOfExperience:
+                    finalRole === 'lawyer' && profile.yearsOfExperience
+                        ? profile.yearsOfExperience
+                        : undefined,
+                primaryPracticeArea:
+                    finalRole === 'lawyer' ? profile.primaryPracticeArea || undefined : undefined,
+            },
+        };
+
+        // TODO: Plug into real API (example):
+        // import apiClient from '@/lib/api/client';
+        // await apiClient.post('/api/v1/auth/onboard', payload);
+
+        // For now keep your simulation
         setTimeout(() => {
-            // Simulate redirection based on role
-            const message = role === 'lawyer'
-                ? "Verification Submitted! Redirecting to Lawyer Workspace..."
-                : "Setup Complete! Redirecting to User Dashboard...";
+            const message =
+                finalRole === 'lawyer'
+                    ? 'Verification Submitted! Redirecting to Lawyer Workspace...'
+                    : 'Setup Complete! Redirecting to User Dashboard...';
 
             alert(message);
             setLoading(false);
-            // In a real app, you would navigate here
+            // In a real app, you would navigate and maybe resetOnboarding()
         }, 1500);
     };
 
@@ -123,7 +156,6 @@ export default function OnboardingFlow() {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-20">
-
                 <div className="w-full max-w-lg">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -152,7 +184,7 @@ export default function OnboardingFlow() {
                                         initial="enter"
                                         animate="center"
                                         exit="exit"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                         className="flex-1 flex flex-col space-y-6"
                                     >
                                         <div className="space-y-2 text-center">
@@ -166,8 +198,8 @@ export default function OnboardingFlow() {
                                         <SelectInput
                                             icon={Globe}
                                             label="Language"
-                                            value={formData.language}
-                                            onChange={(val) => setFormData({ ...formData, language: val })}
+                                            value={profile.preferredLanguage || 'English'}
+                                            onChange={(val) => updateProfile({ preferredLanguage: val })}
                                             options={[
                                                 { value: 'English', label: 'English (US)' },
                                                 { value: 'Spanish', label: 'Spanish' },
@@ -188,7 +220,7 @@ export default function OnboardingFlow() {
                                         initial="enter"
                                         animate="center"
                                         exit="exit"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                         className="flex-1 flex flex-col space-y-6"
                                     >
                                         <div className="space-y-2 text-center">
@@ -203,8 +235,8 @@ export default function OnboardingFlow() {
                                             icon={User}
                                             label="Full Name"
                                             placeholder="e.g. John Doe"
-                                            value={formData.fullName}
-                                            onChange={(val) => setFormData({ ...formData, fullName: val })}
+                                            value={profile.fullName}
+                                            onChange={(val) => updateProfile({ fullName: val })}
                                         />
                                     </motion.div>
                                 )}
@@ -218,7 +250,7 @@ export default function OnboardingFlow() {
                                         initial="enter"
                                         animate="center"
                                         exit="exit"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                         className="flex-1 flex flex-col space-y-6"
                                     >
                                         <div className="space-y-2 text-center">
@@ -233,8 +265,8 @@ export default function OnboardingFlow() {
                                             icon={AtSign}
                                             label="Username"
                                             placeholder="e.g. johnd_law"
-                                            value={formData.username}
-                                            onChange={(val) => setFormData({ ...formData, username: val })}
+                                            value={profile.displayName}
+                                            onChange={(val) => updateProfile({ displayName: val })}
                                         />
                                     </motion.div>
                                 )}
@@ -248,7 +280,7 @@ export default function OnboardingFlow() {
                                         initial="enter"
                                         animate="center"
                                         exit="exit"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                         className="flex-1 flex flex-col space-y-6"
                                     >
                                         <div className="space-y-2 text-center">
@@ -260,20 +292,25 @@ export default function OnboardingFlow() {
                                         </div>
 
                                         <div
-                                            onClick={() => setFormData({ ...formData, isLawyer: !formData.isLawyer })}
+                                            onClick={() => setRole(isLawyer ? null : 'lawyer')}
                                             className={`
                         flex items-center justify-between p-5 rounded-xl border-2 cursor-pointer transition-all duration-300
-                        ${formData.isLawyer
+                        ${isLawyer
                                                     ? 'border-[#3A7573] bg-teal-50 shadow-md'
                                                     : 'border-slate-200 hover:border-[#3A7573]/50 hover:bg-slate-50'
                                                 }
                       `}
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className={`
-                          w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                          ${formData.isLawyer ? 'bg-[#3A7573] text-white' : 'bg-slate-200 text-slate-500'}
-                        `}>
+                                                <div
+                                                    className={`
+                            w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                            ${isLawyer
+                                                            ? 'bg-[#3A7573] text-white'
+                                                            : 'bg-slate-200 text-slate-500'
+                                                        }
+                          `}
+                                                >
                                                     <Scale size={20} />
                                                 </div>
                                                 <div className="text-left">
@@ -281,7 +318,9 @@ export default function OnboardingFlow() {
                                                     <p className="text-xs text-slate-500">I have a Bar Council ID</p>
                                                 </div>
                                             </div>
-                                            {formData.isLawyer && <CheckCircle2 size={24} className="text-[#3A7573]" />}
+                                            {isLawyer && (
+                                                <CheckCircle2 size={24} className="text-[#3A7573]" />
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}
@@ -295,7 +334,7 @@ export default function OnboardingFlow() {
                                         initial="enter"
                                         animate="center"
                                         exit="exit"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                                         className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-1 custom-scrollbar"
                                     >
                                         <div className="text-center mb-2">
@@ -308,16 +347,22 @@ export default function OnboardingFlow() {
                                                 icon={Award}
                                                 label="Bar Registration No."
                                                 placeholder="BC/XXXX/YYYY"
-                                                value={formData.barNumber}
-                                                onChange={(val) => setFormData({ ...formData, barNumber: val })}
+                                                value={profile.barRegistrationNumber}
+                                                onChange={(val) =>
+                                                    updateProfile({ barRegistrationNumber: val })
+                                                }
                                             />
                                             <StepInput
                                                 icon={Calendar}
                                                 label="Years of Experience"
                                                 type="number"
                                                 placeholder="e.g. 5"
-                                                value={formData.experience}
-                                                onChange={(val) => setFormData({ ...formData, experience: val })}
+                                                value={profile.yearsOfExperience || ''}
+                                                onChange={(val) =>
+                                                    updateProfile({
+                                                        yearsOfExperience: Number(val || 0),
+                                                    })
+                                                }
                                             />
                                         </div>
 
@@ -325,15 +370,19 @@ export default function OnboardingFlow() {
                                             icon={Building}
                                             label="Bar Council Name"
                                             placeholder="e.g. Bar Council of Delhi"
-                                            value={formData.barCouncil}
-                                            onChange={(val) => setFormData({ ...formData, barCouncil: val })}
+                                            value={profile.barCouncilName}
+                                            onChange={(val) =>
+                                                updateProfile({ barCouncilName: val })
+                                            }
                                         />
 
                                         <SelectInput
                                             icon={Briefcase}
                                             label="Primary Practice Area"
-                                            value={formData.practiceArea}
-                                            onChange={(val) => setFormData({ ...formData, practiceArea: val })}
+                                            value={profile.primaryPracticeArea || 'Corporate Law'}
+                                            onChange={(val) =>
+                                                updateProfile({ primaryPracticeArea: val })
+                                            }
                                             options={[
                                                 { value: 'Corporate Law', label: 'Corporate Law' },
                                                 { value: 'Criminal Law', label: 'Criminal Law' },
@@ -358,7 +407,15 @@ export default function OnboardingFlow() {
                                 <motion.button
                                     onClick={nextStep}
                                     disabled={loading || !isStepValid()}
-                                    whileHover={!isStepValid() ? {} : { scale: 1.02, boxShadow: "0 10px 15px -3px rgba(58, 117, 115, 0.2)" }}
+                                    whileHover={
+                                        !isStepValid()
+                                            ? {}
+                                            : {
+                                                scale: 1.02,
+                                                boxShadow:
+                                                    '0 10px 15px -3px rgba(58, 117, 115, 0.2)',
+                                            }
+                                    }
                                     whileTap={!isStepValid() ? {} : { scale: 0.98 }}
                                     className={`
                     flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md
@@ -372,13 +429,14 @@ export default function OnboardingFlow() {
                                         <Loader2 size={18} className="animate-spin" />
                                     ) : (
                                         <>
-                                            {step === totalSteps || (step === 4 && !formData.isLawyer) ? 'Finish' : 'Continue'}
+                                            {step === totalSteps || (step === 4 && !isLawyer)
+                                                ? 'Finish'
+                                                : 'Continue'}
                                             <ArrowRight size={18} />
                                         </>
                                     )}
                                 </motion.button>
                             </div>
-
                         </div>
                     </motion.div>
                 </div>
