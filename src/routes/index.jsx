@@ -9,6 +9,7 @@ import OnboardingPage from '@/pages/OnboardingPage';
 import WorkspacePage from '@/pages/WorkspacePage';
 
 import AuthLayout from '@/layouts/AuthLayout';
+import AuthSuccessPage from '@/pages/auth/AuthSuccessPage';
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
         children: [
           { path: 'signin', element: <SignInPage /> },
           { path: 'signup', element: <SignUpPage /> },
+          { path: 'success', element: <AuthSuccessPage /> },
         ],
       },
       {
