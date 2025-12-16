@@ -59,7 +59,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
         <div className="flex flex-1 overflow-hidden relative z-20 animate-in fade-in slide-in-from-right-4 duration-500 h-full">
 
             {/* LEFT SIDEBAR */}
-            <aside className={cn("bg-primary border-r border-teal-accent/30 flex flex-col transition-all duration-300 ease-in-out", showLeftSidebar ? "w-64 translate-x-0 opacity-100" : "w-0 -translate-x-full opacity-0 overflow-hidden border-none")}>
+            <aside className={cn("bg-card border-r border-border flex flex-col transition-all duration-300 ease-in-out", showLeftSidebar ? "w-64 translate-x-0 opacity-100" : "w-0 -translate-x-full opacity-0 overflow-hidden border-none")}>
                 <div className="w-64 flex flex-col h-full overflow-hidden">
                     <div className="p-3 overflow-y-auto custom-scrollbar flex-1">
 
@@ -70,7 +70,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                 className="w-full text-left flex items-start justify-between group"
                             >
                                 <div>
-                                    <h2 className="text-lg font-bold text-primary-foreground leading-tight mb-0.5 group-hover:text-teal-bright transition-colors flex items-center gap-2">
+                                    <h2 className="text-lg font-bold text-foreground leading-tight mb-0.5 group-hover:text-primary transition-colors flex items-center gap-2">
                                         {activeCase.title} <ChevronDown size={14} className={`transition-transform duration-200 ${isCaseSwitcherOpen ? 'rotate-180' : ''}`} />
                                     </h2>
                                     <p className="text-xs text-muted-foreground">Case #{activeCase.ref}</p>
@@ -79,8 +79,8 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
 
                             {/* Dropdown Menu */}
                             {isCaseSwitcherOpen && (
-                                <div className="absolute top-full left-0 w-full mt-2 bg-card border border-teal-accent/30 rounded-lg shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
-                                    <div className="p-2 bg-secondary border-b border-teal-accent/20">
+                                <div className="absolute top-full left-0 w-full mt-2 bg-card border border-border rounded-lg shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+                                    <div className="p-2 bg-secondary/50 border-b border-border">
                                         <p className="text-[10px] text-muted-foreground font-bold uppercase">Switch Case</p>
                                     </div>
                                     <div className="max-h-48 overflow-y-auto custom-scrollbar">
@@ -88,13 +88,13 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                             <button
                                                 key={c.id}
                                                 onClick={() => { onSwitchCase(c); setIsCaseSwitcherOpen(false); }}
-                                                className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors border-b border-teal-accent/10 last:border-0"
+                                                className="w-full text-left px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors border-b border-border last:border-0"
                                             >
                                                 <div className="font-medium">{c.title}</div>
                                                 <div className="text-[10px] text-muted-foreground">{c.ref} • {c.urgency} priority</div>
                                             </button>
                                         ))}
-                                        <button className="w-full text-left px-3 py-2 text-xs text-teal-accent hover:underline border-t border-teal-accent/20 bg-card">
+                                        <button className="w-full text-left px-3 py-2 text-xs text-primary hover:underline border-t border-border bg-card">
                                             View All Cases in Dashboard
                                         </button>
                                     </div>
@@ -103,15 +103,15 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                         </div>
 
                         <div className="flex flex-wrap gap-1.5 mb-3">
-                            <span className="px-2 py-0.5 bg-teal-accent/10 text-teal-bright text-[10px] rounded border border-teal-accent/30">{activeCase.type}</span>
+                            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded border border-primary/20">{activeCase.type}</span>
                             <span className="px-2 py-0.5 bg-accent/10 text-accent text-[10px] rounded border border-accent/30">{activeCase.status}</span>
                         </div>
 
                         <TimerWidget />
 
-                        <div className="flex items-center justify-between p-2 bg-secondary rounded border border-teal-accent/20 mt-3">
-                            <div className="flex items-center gap-2"><Users size={12} className="text-teal-accent" /><span className="text-xs text-muted-foreground">Client Access</span></div>
-                            <div className="relative w-7 h-3.5 bg-midnight rounded-full cursor-pointer"><div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-teal-accent rounded-full shadow-sm"></div></div>
+                        <div className="flex items-center justify-between p-2 bg-secondary/30 rounded border border-border mt-3">
+                            <div className="flex items-center gap-2"><Users size={12} className="text-primary" /><span className="text-xs text-muted-foreground">Client Access</span></div>
+                            <div className="relative w-7 h-3.5 bg-muted rounded-full cursor-pointer border border-border"><div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-primary rounded-full shadow-sm"></div></div>
                         </div>
 
                         {/* Folder Navigation Tree */}
@@ -128,21 +128,21 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                         <button
                                             onClick={() => handleFolderClick(folder)}
                                             className={cn(
-                                                "w-full flex items-center justify-between px-2 py-1 text-sm rounded-md transition-all group hover:bg-secondary/50",
-                                                isCurrent ? "text-primary-foreground" : "text-muted-foreground"
+                                                "w-full flex items-center justify-between px-2 py-1 text-sm rounded-md transition-all group hover:bg-secondary",
+                                                isCurrent ? "bg-accent text-primary font-medium" : "text-muted-foreground"
                                             )}
                                         >
                                             <div className="flex items-center gap-2">
                                                 <ChevronRight size={12} className={cn("transition-transform duration-200", isExpanded && "rotate-90")} />
-                                                <Folder size={14} className={isCurrent ? "text-primary-foreground" : "text-teal-accent group-hover:text-primary-foreground"} />
+                                                <Folder size={14} className={isCurrent ? "text-primary" : "text-muted-foreground group-hover:text-primary"} />
                                                 <span className="truncate text-xs">{folder}</span>
                                             </div>
-                                            <span className="text-[9px] bg-midnight px-1 rounded text-muted-foreground">{files.length}</span>
+                                            <span className="text-[9px] bg-accent/80 px-1 rounded text-muted-foreground border border-border/50">{files.length}</span>
                                         </button>
 
                                         {/* Nested Files */}
                                         {isExpanded && (
-                                            <div className="ml-5 mt-0.5 space-y-0.5 border-l border-teal-accent/20 pl-2">
+                                            <div className="ml-5 mt-0.5 space-y-0.5 border-l border-border pl-2">
                                                 {files.map((file, idx) => (
                                                     <button
                                                         key={idx}
@@ -150,11 +150,11 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                                         className={cn(
                                                             "w-full text-left px-2 py-0.5 text-[11px] rounded-md transition-colors truncate flex items-center gap-2",
                                                             selectedFile?.name === file.name
-                                                                ? "bg-secondary text-primary-foreground"
-                                                                : "text-muted-foreground hover:text-primary-foreground hover:bg-secondary/30"
+                                                                ? "bg-accent text-primary font-medium"
+                                                                : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                                                         )}
                                                     >
-                                                        <span className="w-1 h-1 rounded-full bg-teal-accent flex-shrink-0"></span>
+                                                        <span className={cn("w-1 h-1 rounded-full flex-shrink-0", selectedFile?.name === file.name ? "bg-primary" : "bg-muted-foreground")}></span>
                                                         {file.name}
                                                     </button>
                                                 ))}
@@ -168,8 +168,8 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                             })}
                         </div>
                     </div>
-                    <div className="mt-auto p-3 border-t border-teal-accent/20 bg-primary">
-                        <button className="w-full flex items-center justify-center gap-2 py-1.5 text-xs text-muted-foreground hover:text-primary-foreground transition-colors"><Settings size={12} /> Workspace Settings</button>
+                    <div className="mt-auto p-3 border-t border-border bg-card">
+                        <button className="w-full flex items-center justify-center gap-2 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"><Settings size={12} /> Workspace Settings</button>
                     </div>
                 </div>
             </aside>
