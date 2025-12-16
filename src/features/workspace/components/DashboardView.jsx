@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus, Briefcase, Search, Clock } from 'lucide-react';
 import CaseCard from './CaseCard';
-import { ALL_CASES, RECENT_ACTIVITY } from '../mockData';
+import { RECENT_ACTIVITY } from '../mockData';
+import { useCasesStore } from '@/store/cases';
+import CreateCaseModal from './CreateCaseModal';
 
 const DashboardView = ({ onSelectCase, searchTerm }) => {
-    // Filter cases based on search term
-    const filteredCases = ALL_CASES.filter(c =>
-        c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.ref.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.type.toLowerCase().includes(searchTerm.toLowerCase())
+    const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+
+    // Use Store
+    const { cases, fetchCases, isLoading } = useCasesStore();
+
+    useEffect(() => {
+        fetchCases();
+    }, [fetchCases]);
+
+    // Filter cases based on search term (client-side filtering for now)
+    const filteredCases = (cases || []).filter(c =>
+        c.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.ref?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.type?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -21,7 +32,10 @@ const DashboardView = ({ onSelectCase, searchTerm }) => {
                         <p className="text-[#B0C4C3]">Here is what's happening across your active cases today.</p>
                     </div>
                     {/* Primary Button: Advyon Teal (#1C4645) */}
-                    <button className="flex items-center gap-2 bg-[#1C4645] hover:bg-[#3A7573] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-lg shadow-[#051C1B]/50 border border-[#3A7573]">
+                    <button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="flex items-center gap-2 bg-[#1C4645] hover:bg-[#3A7573] text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all shadow-lg shadow-[#051C1B]/50 border border-[#3A7573]"
+                    >
                         <Plus size={18} /> New Case
                     </button>
                 </div>
@@ -86,6 +100,16 @@ const DashboardView = ({ onSelectCase, searchTerm }) => {
 
                 </div>
             </div>
+
+            {isCreateModalOpen && (
+                <CreateCaseModal
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onSuccess={(newCase) => {
+                        // Auto-open the new case
+                        if (newCase) onSelectCase(newCase);
+                    }}
+                />
+            )}
         </div>
     );
 };
