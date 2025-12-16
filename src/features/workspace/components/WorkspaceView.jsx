@@ -5,7 +5,11 @@ import {
 import { cn } from "@/lib/utils";
 import DocumentItem from './DocumentItem';
 import TimerWidget from './TimerWidget';
-import { CASE_FOLDERS_DATA, ALL_CASES } from '../mockData';
+import { ALL_CASES } from '../mockData';
+import { useDocumentsStore } from '@/store/documents';
+
+// Define standard folders
+const FOLDERS = ['Evidence', 'Witness Statements', 'Pleadings', 'Correspondence', 'Court Orders', 'Research'];
 
 const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const [showLeftSidebar, setShowLeftSidebar] = useState(true);
@@ -14,8 +18,19 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const [expandedFolders, setExpandedFolders] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
 
+    // Store Integration
+    const { fetchDocuments, getDocuments, isLoading } = useDocumentsStore();
     const currentFolder = breadcrumbs[breadcrumbs.length - 1];
-    const currentFiles = CASE_FOLDERS_DATA[currentFolder] || [];
+
+    // Fetch documents when case or folder changes
+    React.useEffect(() => {
+        if (activeCase?.id && currentFolder) {
+            fetchDocuments({ caseId: activeCase.id, folder: currentFolder });
+        }
+    }, [activeCase, currentFolder, fetchDocuments]);
+
+    const currentFiles = getDocuments(activeCase.id, currentFolder) || [];
+    const loading = isLoading(activeCase.id, currentFolder);
 
     // Filter files based on search term
     const filteredFiles = currentFiles.filter(f =>
@@ -105,7 +120,8 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                             {Object.keys(CASE_FOLDERS_DATA).map((folder) => {
                                 const isExpanded = expandedFolders.includes(folder);
                                 const isCurrent = currentFolder === folder;
-                                const files = CASE_FOLDERS_DATA[folder];
+                                // We can fetch counts or just show what's loaded. For now, showing length of loaded items.
+                                const files = getDocuments(activeCase.id, folder);
 
                                 return (
                                     <div key={folder} className="mb-0.5">
@@ -207,7 +223,11 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                     <span className="text-[9px] bg-secondary px-1.5 py-0.5 rounded-full text-foreground">{filteredFiles.length} items</span>
                                 </h3>
 
-                                {filteredFiles.length > 0 ? (
+                                {loading ? (
+                                    <div className="text-center py-12 opacity-50">
+                                        <p className="text-sm text-[#B0C4C3]">Loading...</p>
+                                    </div>
+                                ) : filteredFiles.length > 0 ? (
                                     filteredFiles.map((file, idx) => (
                                         <DocumentItem key={idx} {...file} onClick={() => setSelectedFile(file)} />
                                     ))

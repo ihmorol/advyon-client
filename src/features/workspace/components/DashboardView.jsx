@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus, Briefcase, Search, Clock } from 'lucide-react';
 import CaseCard from './CaseCard';
-import { ALL_CASES, RECENT_ACTIVITY } from '../mockData';
+import { RECENT_ACTIVITY } from '../mockData';
+import { useCasesStore } from '@/store/cases';
+import CreateCaseModal from './CreateCaseModal';
 
 const DashboardView = ({ onSelectCase, searchTerm }) => {
-    // Filter cases based on search term
-    const filteredCases = ALL_CASES.filter(c =>
-        c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.ref.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.type.toLowerCase().includes(searchTerm.toLowerCase())
+    const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+
+    // Use Store
+    const { cases, fetchCases, isLoading } = useCasesStore();
+
+    useEffect(() => {
+        fetchCases();
+    }, [fetchCases]);
+
+    // Filter cases based on search term (client-side filtering for now)
+    const filteredCases = (cases || []).filter(c =>
+        c.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.ref?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.type?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -85,6 +96,16 @@ const DashboardView = ({ onSelectCase, searchTerm }) => {
 
                 </div>
             </div>
+
+            {isCreateModalOpen && (
+                <CreateCaseModal
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onSuccess={(newCase) => {
+                        // Auto-open the new case
+                        if (newCase) onSelectCase(newCase);
+                    }}
+                />
+            )}
         </div>
     );
 };
