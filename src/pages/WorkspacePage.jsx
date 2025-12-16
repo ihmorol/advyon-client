@@ -17,7 +17,7 @@ const WorkspacePage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col">
 
             <div className="flex flex-1 relative">
                 {/* Animated Placeholder for the fixed sidebar width */}
@@ -30,25 +30,19 @@ const WorkspacePage = () => {
                     onMouseLeave={() => setIsSidebarCollapsed(true)}
                 />
 
-                <main className="flex-1 overflow-hidden relative z-10 flex flex-col bg-primary rounded-[30px] m-4 shadow-2xl border border-[#3A7573]/20">
-                    {/* Background Effects */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1C4645] via-[#153433] to-[#0f2524] -z-10"></div>
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 -z-10 mix-blend-overlay fixed"></div>
-
-                    {/* Workspace Content */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        {currentView === 'dashboard' ? (
-                            <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
-                        ) : (
-                            <WorkspaceView
-                                activeCase={activeCase || ALL_CASES[0]}
-                                onSwitchCase={handleCaseSelect}
-                                onBack={() => setCurrentView('dashboard')}
-                                searchTerm={searchTerm}
-                            />
-                        )}
-                    </div>
-                </main>
+                {/* Workspace Content */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {currentView === 'dashboard' ? (
+                        <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
+                    ) : (
+                        <WorkspaceView
+                            activeCase={activeCase || ALL_CASES[0]}
+                            onSwitchCase={handleCaseSelect}
+                            onBack={() => setCurrentView('dashboard')}
+                            searchTerm={searchTerm}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

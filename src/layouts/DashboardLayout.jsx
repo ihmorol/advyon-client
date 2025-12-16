@@ -32,7 +32,7 @@ const DashboardLayout = () => {
            {/* Background Effects */}
            <div className="absolute inset-0 bg-primary -z-10 fixed"></div>
            
-          <div className="bg-white rounded-2xl shadow-2xl min-h-full p-6 text-gray-800">
+          <div className="bg-background rounded-2xl shadow-2xl min-h-full p-6 text-gray-800">
             <Outlet />
           </div>
         </main>
