@@ -1,14 +1,41 @@
-import React, { useState } from 'react';
-import { DashboardView, WorkspaceView, ALL_CASES } from '../features/workspace';
+import React, { useState, useMemo } from 'react';
+import { DashboardView, WorkspaceView } from '../features/workspace';
 import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import { motion } from 'framer-motion';
+import { useCases } from '../services/cases/caseService';
 
 const WorkspacePage = () => {
     const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'workspace'
     const [activeCase, setActiveCase] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); // Global search state
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+
+    // Fetch cases from API
+    // The backend returns { data: [], meta: {} }, so we access data?.data or default to empty array
+    const { data: casesResponse, isLoading, error } = useCases();
+    
+    console.log('API Response:', casesResponse);
+    console.log('API Error:', error);
+
+    // Transform backend data to match frontend component expectations
+    const mappedCases = useMemo(() => {
+        if (!casesResponse?.data) return [];
+        
+        return casesResponse.data.map(caseItem => ({
+            id: caseItem._id,
+            title: caseItem.title,
+            ref: caseItem.caseNumber,
+            type: caseItem.caseType,
+            // Capitalize first letter for status
+            status: caseItem.status.charAt(0).toUpperCase() + caseItem.status.slice(1),
+            urgency: caseItem.urgency,
+            // Use description if available, otherwise format the date
+            nextDeadline: caseItem.nextDeadlineDescription || 
+                          (caseItem.nextDeadline ? new Date(caseItem.nextDeadline).toLocaleDateString() : 'No deadline'),
+            progress: caseItem.progress || 0
+        }));
+    }, [casesResponse]);
 
     const handleCaseSelect = (caseData) => {
         setActiveCase(caseData);
@@ -37,11 +64,21 @@ const WorkspacePage = () => {
 
                     {/* Workspace Content */}
                     <div className="flex-1 flex flex-col overflow-hidden">
-                        {currentView === 'dashboard' ? (
-                            <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
+                        {isLoading ? (
+                            <div className="flex items-center justify-center h-full text-white/70">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mr-3"></div>
+                                Loading workspaces...
+                            </div>
+                        ) : currentView === 'dashboard' ? (
+                            <DashboardView 
+                                cases={mappedCases} 
+                                onSelectCase={handleCaseSelect} 
+                                searchTerm={searchTerm} 
+                            />
                         ) : (
                             <WorkspaceView
-                                activeCase={activeCase || ALL_CASES[0]}
+                                cases={mappedCases}
+                                activeCase={activeCase || mappedCases[0]}
                                 onSwitchCase={handleCaseSelect}
                                 onBack={() => setCurrentView('dashboard')}
                                 searchTerm={searchTerm}

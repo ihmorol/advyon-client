@@ -1,11 +1,11 @@
 import React from 'react';
 import { Plus, Briefcase, Search, Clock } from 'lucide-react';
 import CaseCard from './CaseCard';
-import { ALL_CASES, RECENT_ACTIVITY } from '../mockData';
+import { RECENT_ACTIVITY } from '../mockData';
 
-const DashboardView = ({ onSelectCase, searchTerm }) => {
+const DashboardView = ({ onSelectCase, searchTerm, cases = [] }) => {
     // Filter cases based on search term
-    const filteredCases = ALL_CASES.filter(c =>
+    const filteredCases = cases.filter(c =>
         c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.ref.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.type.toLowerCase().includes(searchTerm.toLowerCase())

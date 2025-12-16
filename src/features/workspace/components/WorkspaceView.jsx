@@ -5,9 +5,9 @@ import {
 import { cn } from "@/lib/utils";
 import DocumentItem from './DocumentItem';
 import TimerWidget from './TimerWidget';
-import { CASE_FOLDERS_DATA, ALL_CASES } from '../mockData';
+import { CASE_FOLDERS_DATA } from '../mockData';
 
-const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
+const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack, cases = [] }) => {
     const [showLeftSidebar, setShowLeftSidebar] = useState(true);
     const [isCaseSwitcherOpen, setIsCaseSwitcherOpen] = useState(false);
     const [breadcrumbs, setBreadcrumbs] = useState([activeCase.title, 'Evidence']);
@@ -71,7 +71,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                         <p className="text-[10px] text-[#B0C4C3] font-bold uppercase">Switch Case</p>
                                     </div>
                                     <div className="max-h-48 overflow-y-auto custom-scrollbar">
-                                        {ALL_CASES.filter(c => c.id !== activeCase.id).map(c => (
+                                        {cases.filter(c => c.id !== activeCase.id).map(c => (
                                             <button
                                                 key={c.id}
                                                 onClick={() => { onSwitchCase(c); setIsCaseSwitcherOpen(false); }}
