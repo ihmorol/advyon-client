@@ -10,10 +10,12 @@ const DashboardView = ({ onSelectCase, searchTerm }) => {
 
     // Use Store
     const { cases, fetchCases, isLoading } = useCasesStore();
+    
 
     useEffect(() => {
         fetchCases();
     }, [fetchCases]);
+    console.log(cases)
 
     // Filter cases based on search term (client-side filtering for now)
     const filteredCases = (cases || []).filter(c =>

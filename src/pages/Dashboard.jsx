@@ -175,7 +175,7 @@ const Dashboard = () => {
                             <div className="flex items-center gap-6">
                                 <div className="hidden w-24 md:block">
                                     <div className="h-1.5 w-full rounded-full bg-primary">
-                                        <div className="h-1.5 rounded-full bg-accent transition-all duration-1000" style={{ width: `${c.progress || 0}%` />
+                                        <div className="h-1.5 rounded-full bg-accent transition-all duration-1000" style={{ width: `${c.progress || 0}%`}} />
                                     </div>
                                     <p className="mt-1 text-right text-[10px] text-muted-foreground">{c.progress || 0}%</p>
                                 </div>
