@@ -162,14 +162,7 @@ export function Navbar() {
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-primary-foreground hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white")}>
-                    <Link to="/ai-assistant" className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-accent-foreground" />
-                      AI Tools
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -221,9 +214,7 @@ export function Navbar() {
                    <Link to="/legal-database" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
                     <Scale className="w-4 h-4" /> Legal DB
                   </Link>
-                   <Link to="/ai-assistant" className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-accent/20 text-sm">
-                    <Sparkles className="w-4 h-4 text-accent-foreground" /> AI Tools
-                  </Link>
+
                 </div>
 
                 {isDashboard && (
