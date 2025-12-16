@@ -5,24 +5,43 @@ import { motion } from "framer-motion";
 import { 
   Briefcase, 
   Calendar, 
-  Clock, 
   FileText, 
   Plus, 
-  Search, 
-  Filter, 
-  MoreHorizontal,
-  ArrowRight,
-  UserPlus,
   Upload,
   MessageSquare,
   Gavel,
-  Bell,
   Sparkles,
   TrendingUp,
-  Users
+  UserPlus,
+  ArrowRight
 } from "lucide-react";
+import { useCurrentUser } from "../services/auth/authService";
+import { useCases } from "../services/cases/caseService";
 
 const Dashboard = () => {
+  const { data: userData } = useCurrentUser();
+  const { data: casesData } = useCases({ limit: 100 }); // Fetch enough to calculate basic stats
+  
+  const user = userData?.data?.user;
+  const profile = userData?.data?.profile;
+  const allCases = casesData?.data || [];
+
+  // --- Computed Stats ---
+  const activeCasesCount = allCases.filter(c => c.status === 'active').length;
+  
+  // Upcoming Hearings (Next 7 days)
+  const upcomingHearingsCount = allCases.filter(c => {
+    if (!c.nextDeadline) return false;
+    const deadline = new Date(c.nextDeadline);
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+    return deadline >= now && deadline <= sevenDaysFromNow;
+  }).length;
+
+  // Pending Review (arbitrary logic: status 'review' or 'pending')
+  const pendingReviewCount = allCases.filter(c => ['review', 'pending'].includes(c.status?.toLowerCase())).length;
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -52,7 +71,7 @@ const Dashboard = () => {
         <div>
           <h2 className="text-4xl font-bold tracking-tight text-black">Overview</h2>
           <p className="text-gray-600 mt-1">
-            Welcome back, Advocate. You have <span className="text-accent font-semibold">5 urgent tasks</span> today.
+            Welcome back, {profile?.fullName || user?.fullName || 'Advocate'}. You have <span className="text-accent font-semibold">{allCases.filter(c => c.urgency === 'high').length} urgent tasks</span> today.
           </p>
         </div>
         <div className="flex gap-3">
@@ -66,10 +85,10 @@ const Dashboard = () => {
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: "Active Cases", value: "24", sub: "+3 this week", icon: Briefcase, color: "text-blue-400" },
-          { title: "Upcoming Hearings", value: "05", sub: "Next 7 days", icon: Gavel, color: "text-amber-400" },
-          { title: "Pending Review", value: "12", sub: "Documents & Evidence", icon: FileText, color: "text-red-400" },
-          { title: "Client Messages", value: "08", sub: "3 new inquiries", icon: MessageSquare, color: "text-emerald-400" }
+          { title: "Active Cases", value: activeCasesCount, sub: "Total active", icon: Briefcase, color: "text-blue-400" },
+          { title: "Upcoming Hearings", value: upcomingHearingsCount, sub: "Next 7 days", icon: Gavel, color: "text-amber-400" },
+          { title: "Pending Review", value: pendingReviewCount, sub: "Documents & Evidence", icon: FileText, color: "text-red-400" },
+          { title: "Client Messages", value: "08", sub: "3 new inquiries", icon: MessageSquare, color: "text-emerald-400" } // Static for now
         ].map((stat, index) => (
           <motion.div key={index} variants={item}>
             <Card className={cardStyle}>
@@ -141,13 +160,8 @@ const Dashboard = () => {
               </div>
               
               <div className="space-y-3">
-                 {[
-                    { title: "State v. Johnson", type: "Criminal", status: "Active", progress: 75, next: "Hearing Tomorrow" },
-                    { title: "Estate of M. Davis", type: "Probate", status: "Review", progress: 30, next: "Client Meeting Dec 14" },
-                    { title: "TechCorp v. StartUp", type: "Civil", status: "Discovery", progress: 45, next: "Motion Due Dec 12" },
-                    { title: "Smith Divorce", type: "Family", status: "Mediation", progress: 60, next: "Mediation Session" },
-                 ].map((c, i) => (
-                    <Card key={i} className={`${cardStyle} group cursor-pointer border-l-4 border-l-transparent hover:border-l-accent`}>
+                 {allCases.slice(0, 5).map((c, i) => (
+                    <Card key={c._id || c.id || i} className={`${cardStyle} group cursor-pointer border-l-4 border-l-transparent hover:border-l-accent`}>
                         <CardContent className="flex items-center justify-between p-4 px-6">
                             <div className="flex items-center gap-4">
                                 <div className="rounded-full bg-[#0A2625] p-2 text-gray-400 group-hover:text-white">
@@ -155,23 +169,28 @@ const Dashboard = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-semibold text-white group-hover:text-accent">{c.title}</h4>
-                                    <p className="text-xs text-gray-400">{c.type} • {c.next}</p>
+                                    <p className="text-xs text-gray-400">{c.caseType} • {c.nextDeadline ? new Date(c.nextDeadline).toLocaleDateString() : 'No Deadline'}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-6">
                                 <div className="hidden w-24 md:block">
                                     <div className="h-1.5 w-full rounded-full bg-[#0A2625]">
-                                        <div className="h-1.5 rounded-full bg-accent transition-all duration-1000" style={{ width: `${c.progress}%` }} />
+                                        <div className="h-1.5 rounded-full bg-accent transition-all duration-1000" style={{ width: `${c.progress || 0}%` }} />
                                     </div>
-                                    <p className="mt-1 text-right text-[10px] text-gray-500">{c.progress}%</p>
+                                    <p className="mt-1 text-right text-[10px] text-gray-500">{c.progress || 0}%</p>
                                 </div>
-                                <span className={`rounded-full px-3 py-1 text-xs font-medium ${c.status === 'Active' ? 'bg-blue-500/10 text-blue-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                                <span className={`rounded-full px-3 py-1 text-xs font-medium ${c.status === 'active' ? 'bg-blue-500/10 text-blue-400' : 'bg-gray-500/10 text-gray-400'}`}>
                                     {c.status}
                                 </span>
                             </div>
                         </CardContent>
                     </Card>
                  ))}
+                 {allCases.length === 0 && (
+                     <div className="text-center text-gray-500 py-10">
+                         No recent cases found.
+                     </div>
+                 )}
               </div>
            </div>
         </motion.div>
@@ -179,7 +198,7 @@ const Dashboard = () => {
         {/* Sidebar */}
         <motion.div variants={item} className="space-y-8">
             
-            {/* Today's Schedule */}
+            {/* Today's Schedule (Static - No API yet) */}
             <Card className={cardStyle}>
                 <CardHeader>
                     <CardTitle className="text-white">Today's Schedule</CardTitle>
@@ -203,7 +222,7 @@ const Dashboard = () => {
                 </CardContent>
             </Card>
 
-            {/* Client Requests */}
+            {/* Client Requests (Static - No API yet) */}
             <Card className={cardStyle}>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between text-white">
@@ -235,7 +254,7 @@ const Dashboard = () => {
                 </CardContent>
             </Card>
 
-            {/* Recent Activity */}
+            {/* Recent Activity (Static - No API yet) */}
             <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-black">Activity Feed</h3>
                 <div className="space-y-4 rounded-xl bg-[#1C4645]/50 p-4">
