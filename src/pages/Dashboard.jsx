@@ -57,14 +57,14 @@ const Dashboard = () => {
     show: { y: 0, opacity: 1 }
   };
 
-  const cardStyle = "border-border/40 bg-[#1C4645] backdrop-blur-sm shadow-xl transition-all hover:border-accent/40 hover:shadow-2xl";
+  const cardStyle = "border-border/40 bg-card backdrop-blur-sm shadow-xl transition-all hover:border-accent/40 hover:shadow-2xl bg-background";
 
   return (
     <motion.div 
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-8 bg-[#ffffff] p-8 min-h-screen text-foreground"
+      className="space-y-8 bg-background p-8 min-h-screen text-foreground"
     >
       {/* Header Section */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -93,14 +93,14 @@ const Dashboard = () => {
           <motion.div key={index} variants={item}>
             <Card className={cardStyle}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-gray-300">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </CardTitle>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <p className="text-xs text-gray-400">
+                <div className="text-2xl font-bold text-card-foreground">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">
                   {stat.sub}
                 </p>
               </CardContent>
@@ -125,25 +125,25 @@ const Dashboard = () => {
                     <div className={`rounded-full p-3 ${action.color}`}>
                         <action.icon className="h-6 w-6" />
                     </div>
-                    <span className="text-sm font-medium text-gray-200">{action.label}</span>
+                    <span className="text-sm font-medium text-card-foreground">{action.label}</span>
                 </button>
               ))}
            </div>
 
            {/* AI Insights Panel */}
-           <Card className={`${cardStyle} border-accent/20`}>
+           <Card className={`${cardStyle} border-accent/20 bg-teal-accent`}>
               <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-white">
+                  <CardTitle className="flex items-center gap-2 text-primary-foreground">
                       <Sparkles className="h-5 w-5 text-accent" />
-                      Lexora AI Insights
+                      Advyon AI Insights
                   </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                  <div className="rounded-lg bg-[#0A2625] p-4 text-sm text-gray-300">
+                  <div className="rounded-lg bg-background p-4 text-sm text-background-foreground border border-accent/20 shadow-sm">
                       <span className="mb-2 block font-semibold text-accent">Analysis Complete: State v. Johnson</span>
                       The evidence analysis identified 3 missing timestamps in the witness testimony. Recommendation: Request supplementary statement.
                   </div>
-                  <div className="rounded-lg bg-[#0A2625] p-4 text-sm text-gray-300">
+                  <div className="rounded-lg bg-background p-4 text-sm text-background-foreground border border-accent/20 shadow-sm ">
                       <span className="mb-2 block font-semibold text-accent">Legal Update Alert</span>
                       New Supreme Court ruling on "Digital Privacy" may impact your current case <span className="text-white underline decoration-accent/50 underline-offset-4">TechCorp v. StartUp</span>.
                   </div>
@@ -153,8 +153,8 @@ const Dashboard = () => {
            {/* Recent Cases Table */}
            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-black">Recent Matters</h3>
-                  <Button variant="ghost" size="sm" className="text-gray-600 hover:text-accent">
+                  <h3 className="text-xl font-semibold text-foreground">Recent Matters</h3>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-accent">
                     View All <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
               </div>
@@ -164,22 +164,22 @@ const Dashboard = () => {
                     <Card key={c._id || c.id || i} className={`${cardStyle} group cursor-pointer border-l-4 border-l-transparent hover:border-l-accent`}>
                         <CardContent className="flex items-center justify-between p-4 px-6">
                             <div className="flex items-center gap-4">
-                                <div className="rounded-full bg-[#0A2625] p-2 text-gray-400 group-hover:text-white">
+                                <div className="rounded-full bg-primary p-2 text-muted-foreground group-hover:text-primary-foreground">
                                     <Briefcase className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-white group-hover:text-accent">{c.title}</h4>
-                                    <p className="text-xs text-gray-400">{c.caseType} • {c.nextDeadline ? new Date(c.nextDeadline).toLocaleDateString() : 'No Deadline'}</p>
+                                    <h4 className="font-semibold text-card-foreground group-hover:text-accent">{c.title}</h4>
+                                    <p className="text-xs text-muted-foreground">{c.caseType} • {c.nextDeadline ? new Date(c.nextDeadline).toLocaleDateString() : 'No Deadline'}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-6">
                                 <div className="hidden w-24 md:block">
-                                    <div className="h-1.5 w-full rounded-full bg-[#0A2625]">
-                                        <div className="h-1.5 rounded-full bg-accent transition-all duration-1000" style={{ width: `${c.progress || 0}%` }} />
+                                    <div className="h-1.5 w-full rounded-full bg-primary">
+                                        <div className="h-1.5 rounded-full bg-accent transition-all duration-1000" style={{ width: `${c.progress || 0}%` />
                                     </div>
-                                    <p className="mt-1 text-right text-[10px] text-gray-500">{c.progress || 0}%</p>
+                                    <p className="mt-1 text-right text-[10px] text-muted-foreground">{c.progress || 0}%</p>
                                 </div>
-                                <span className={`rounded-full px-3 py-1 text-xs font-medium ${c.status === 'active' ? 'bg-blue-500/10 text-blue-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                                <span className={`rounded-full px-3 py-1 text-xs font-medium ${c.status === 'Active' ? 'bg-teal-accent/10 text-teal-bright' : 'bg-muted text-muted-foreground'}`}>
                                     {c.status}
                                 </span>
                             </div>
@@ -201,7 +201,7 @@ const Dashboard = () => {
             {/* Today's Schedule (Static - No API yet) */}
             <Card className={cardStyle}>
                 <CardHeader>
-                    <CardTitle className="text-white">Today's Schedule</CardTitle>
+                    <CardTitle className="text-card-foreground">Today's Schedule</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {[
@@ -211,11 +211,11 @@ const Dashboard = () => {
                         { time: "04:30 PM", event: "Review Evidence", type: "Work" },
                     ].map((ev, i) => (
                         <div key={i} className="flex gap-4">
-                            <span className="w-16 text-sm font-medium text-gray-400">{ev.time}</span>
-                            <div className="relative flex-1 border-l-2 border-[#0A2625] pl-4 pb-2 last:pb-0">
+                            <span className="w-16 text-sm font-medium text-muted-foreground">{ev.time}</span>
+                            <div className="relative flex-1 border-l-2 border-surface pl-4 pb-2 last:pb-0">
                                 <div className={`absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full ${ev.urgent ? 'bg-red-400 animate-pulse' : 'bg-accent'}`} />
-                                <p className="text-sm font-medium text-white">{ev.event}</p>
-                                <p className="text-xs text-gray-500">{ev.type}</p>
+                                <p className="text-sm font-medium text-card-foreground">{ev.event}</p>
+                                <p className="text-xs text-muted-foreground">{ev.type}</p>
                             </div>
                         </div>
                     ))}
@@ -225,9 +225,9 @@ const Dashboard = () => {
             {/* Client Requests (Static - No API yet) */}
             <Card className={cardStyle}>
                 <CardHeader>
-                    <CardTitle className="flex items-center justify-between text-white">
+                    <CardTitle className="flex items-center justify-between text-card-foreground">
                         <span>Client Requests</span>
-                        <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-400">2 New</span>
+                        <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive">2 New</span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -235,20 +235,20 @@ const Dashboard = () => {
                         { name: "Sarah Connor", msg: "Requesting access to case files", time: "10m ago" },
                         { name: "John Doe", msg: "Uploaded new evidence photos", time: "1h ago" },
                      ].map((req, i) => (
-                         <div key={i} className="flex items-center gap-3 rounded-lg bg-[#0A2625] p-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-accent font-bold">
+                         <div key={i} className="flex items-center gap-3 rounded-lg bg-background border border-accent/20 shadow-sm p-3">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/20 text-background-foreground font-bold">
                                 {req.name[0]}
                             </div>
                             <div className="flex-1 overflow-hidden">
-                                <p className="truncate text-sm font-medium text-white">{req.name}</p>
-                                <p className="truncate text-xs text-gray-400">{req.msg}</p>
+                                <p className="truncate text-sm font-medium text-background-foreground">{req.name}</p>
+                                <p className="truncate text-xs text-muted-foreground">{req.msg}</p>
                             </div>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-gray-400 hover:text-white">
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-primary-foreground">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
                          </div>
                      ))}
-                     <Button className="w-full bg-[#0A2625] text-accent hover:bg-accent hover:text-white">
+                     <Button className="w-full bg-primary text-primary-foreground hover:bg-accent hover:text-primary">
                         View All Requests
                      </Button>
                 </CardContent>
@@ -256,18 +256,18 @@ const Dashboard = () => {
 
             {/* Recent Activity (Static - No API yet) */}
             <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-black">Activity Feed</h3>
-                <div className="space-y-4 rounded-xl bg-[#1C4645]/50 p-4">
+                <h3 className="text-lg font-semibold text-background-foreground">Activity Feed</h3>
+                <div className="space-y-4 rounded-xl bg-primary/10 p-4">
                     {[
                         { text: "System updated auto-backups", time: "Just now", icon: SettingsIcon },
                         { text: "Adv. Michael closed Case #892", time: "2h ago", icon: Briefcase },
                         { text: "New billing cycle started", time: "1d ago", icon: TrendingUp },
                     ].map((act, i) => (
                         <div key={i} className="flex gap-3">
-                            <div className="mt-1 h-2 w-2 rounded-full bg-gray-500" />
+                            <div className="mt-1 h-2 w-2 rounded-full bg-teal-accent" />
                             <div>
-                                <p className="text-xs text-gray-300">{act.text}</p>
-                                <p className="text-[10px] text-gray-500">{act.time}</p>
+                                <p className="text-xs text-background-foreground">{act.text}</p>
+                                <p className="text-[10px] text-background-foreground">{act.time}</p>
                             </div>
                         </div>
                     ))}
