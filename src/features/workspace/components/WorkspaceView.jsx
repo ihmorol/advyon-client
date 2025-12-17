@@ -29,7 +29,8 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
         }
     }, [activeCase, currentFolder, fetchDocuments]);
 
-    const currentFiles = getDocuments(activeCase.id, currentFolder) || [];
+    const rawFiles = getDocuments(activeCase.id, currentFolder);
+    const currentFiles = Array.isArray(rawFiles) ? rawFiles : [];
     const loading = isLoading(activeCase.id, currentFolder);
 
     // Filter files based on search term
@@ -117,7 +118,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                         {/* Folder Navigation Tree */}
                         <div className="mt-4 space-y-0.5">
                             <div className="flex items-center gap-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">Folders</div>
-                            {Object.keys(CASE_FOLDERS_DATA).map((folder) => {
+                            {FOLDERS.map((folder) => {
                                 const isExpanded = expandedFolders.includes(folder);
                                 const isCurrent = currentFolder === folder;
                                 // We can fetch counts or just show what's loaded. For now, showing length of loaded items.

@@ -16,7 +16,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.5, y: -50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="text-[12rem] font-black tracking-tighter text-foreground drop-shadow-2xl md:text-[16rem]"
+            className="text-[12rem] font-bold tracking-tighter text-background drop-shadow-2xl md:text-[16rem]"
           >
             ADVYON
           </motion.h1>
@@ -39,8 +39,8 @@ export default function Home() {
         >
           <SignedIn>
             <SignOutButton>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 size="lg"
                 className="text-lg font-semibold shadow-lg transition-all hover:scale-105 active:scale-95"
               >
@@ -50,7 +50,7 @@ export default function Home() {
           </SignedIn>
           <SignedOut>
             <Link to="/auth/signin">
-              <Button 
+              <Button
                 size="lg"
                 className="group bg-accent px-20 py-12 text-2xl font-bold text-accent-foreground shadow-lg transition-all hover:scale-105 hover:bg-accent/90 active:scale-95"
               >
