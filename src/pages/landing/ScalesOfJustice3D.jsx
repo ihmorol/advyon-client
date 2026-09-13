@@ -18,12 +18,27 @@ const tealGlow = new THREE.MeshPhongMaterial({
   opacity: 0.2,
 });
 
+/* ───────── Seeded PRNG (mulberry32) ─────────
+   Deterministic pseudo-random numbers keep the particle field stable
+   across re-renders (pure render, React Compiler safe). */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 /* ───────── Animated Particle field ───────── */
 function Particles({ count = 400 }) {
   const ref = useRef();
   const positions = useMemo(() => {
+    const rand = mulberry32(42);
     const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count * 3; i++) arr[i] = (Math.random() - 0.5) * 22;
+    for (let i = 0; i < count * 3; i++) arr[i] = (rand() - 0.5) * 22;
     return arr;
   }, [count]);
 
