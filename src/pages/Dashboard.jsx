@@ -132,7 +132,9 @@ const Dashboard = () => {
   const statsToDisplay = isClient ? clientStats : lawyerStats;
 
   const lawyerActions = [
-    { label: "Add Client", icon: UserPlus, color: "bg-blue-500/10 text-blue-400", action: () => navigate('/dashboard/clients') }, // Redirect to clients
+    ...(['lawyer', 'admin'].includes(user?.role)
+      ? [{ label: "Add Client", icon: UserPlus, color: "bg-blue-500/10 text-blue-400", action: () => navigate('/dashboard/clients') }]
+      : []),
     { label: "Upload File", icon: Upload, color: "bg-purple-500/10 text-purple-400", action: () => navigate('/dashboard/documents') },
     { label: "Court Date", icon: Calendar, color: "bg-amber-500/10 text-amber-400", action: () => navigate('/dashboard/schedule/new?type=hearing') },
     { label: "AI Analysis", icon: Sparkles, color: "bg-emerald-500/10 text-emerald-400", action: () => navigate('/dashboard/ai-assistant') },
@@ -169,12 +171,12 @@ const Dashboard = () => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="space-y-8 bg-background p-8 min-h-screen text-foreground"
+      className="space-y-6 md:space-y-8 bg-background p-4 sm:p-6 md:p-8 min-h-screen text-foreground overflow-x-hidden"
     >
       {/* Header Section */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto overflow-hidden">
             <h2 className="text-4xl font-bold tracking-tight text-black">Overview</h2>
             <Link to="/dashboard/community">
               <Button variant="outline" size="sm" className="h-8 shadow-sm hover:bg-accent/10 hover:text-accent border-accent/20">
@@ -248,17 +250,17 @@ const Dashboard = () => {
         <motion.div variants={item} className="space-y-8 lg:col-span-2">
 
           {/* Quick Actions Grid */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
             {actionsToDisplay.map((action, i) => (
               <button 
                 key={i} 
                 className={`flex flex-col items-center justify-center gap-3 rounded-xl ${cardStyle} p-6 transition-transform hover:-translate-y-1`}
                 onClick={action.action}
               >
-                <div className={`rounded-full p-3 ${action.color}`}>
-                  <action.icon className="h-6 w-6" />
+                <div className={`rounded-full p-2 md:p-3 ${action.color}`}>
+                  <action.icon className="h-5 w-5 md:h-6 md:w-6" />
                 </div>
-                <span className="text-sm font-medium text-card-foreground">{action.label}</span>
+                <span className="text-xs md:text-sm font-medium text-card-foreground text-center line-clamp-2 leading-tight">{action.label}</span>
               </button>
             ))}
           </div>
@@ -340,14 +342,14 @@ const Dashboard = () => {
                   className={`${cardStyle} group cursor-pointer border-l-4 border-l-transparent hover:border-l-accent`}
                   onClick={() => navigate(`/dashboard/workspace/${c._id || c.id}`)}
                 >
-                  <CardContent className="flex items-center justify-between p-4 px-6">
+                  <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 px-4 md:px-6 gap-4">
                     <div className="flex items-center gap-4">
                       <div className="rounded-full bg-primary p-2 text-muted-foreground group-hover:text-primary-foreground">
                         <Briefcase className="h-5 w-5" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-card-foreground group-hover:text-accent">{c.title}</h4>
-                        <p className="text-xs text-muted-foreground">{c.caseType} • {c.nextDeadline ? new Date(c.nextDeadline).toLocaleDateString() : 'No Deadline'}</p>
+                        <h4 className="font-semibold text-card-foreground group-hover:text-accent truncate w-[200px] sm:w-[300px] md:w-full">{c.title}</h4>
+                        <p className="text-xs text-muted-foreground truncate w-full">{c.caseType} • {c.nextDeadline ? new Date(c.nextDeadline).toLocaleDateString() : 'No Deadline'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
@@ -416,7 +418,7 @@ const Dashboard = () => {
           <Card className={cardStyle}>
             <CardHeader>
               <CardTitle className="flex items-center justify-between text-card-foreground">
-                <span>Client Requests</span>
+                <span>{isClient ? 'Recent Messages' : 'Client Requests'}</span>
                 {pendingCount > 0 && (
                   <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
                     {pendingCount} New
@@ -452,14 +454,14 @@ const Dashboard = () => {
                 ))
               ) : (
                 <div className="text-center py-6 text-muted-foreground text-sm">
-                  No pending requests
+                  {isClient ? 'No recent messages' : 'No pending requests'}
                 </div>
               )}
               <Button 
                 className="w-full bg-primary text-primary-foreground hover:bg-accent hover:text-primary"
-                onClick={() => navigate('/dashboard/messages')}
+                onClick={() => navigate('/dashboard/chat')}
               >
-                View All Requests
+                {isClient ? 'View All Messages' : 'View All Requests'}
               </Button>
             </CardContent>
           </Card>

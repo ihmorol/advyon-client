@@ -29,7 +29,7 @@ const TextReviewPage = () => {
           // Simulating OCR text retrieval - in real app would fetch from backend/AI analysis
           setOcrText(doc.aiAnalysis?.rawSummary || "OCR extracted text would appear here...");
         }
-      } catch (err) {
+      } catch {
         toast.error("Failed to load document");
       } finally {
         setLoading(false);
@@ -45,7 +45,7 @@ const TextReviewPage = () => {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Mock delay
       toast.success("Text extraction saved");
       navigate(-1);
-    } catch (err) {
+    } catch {
       toast.error("Failed to save");
     } finally {
       setIsSaving(false);
@@ -76,7 +76,7 @@ const TextReviewPage = () => {
         </div>
       </header>
 
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Original Document Preview (Left) */}
         <div className="flex-1 bg-muted/30 p-4 overflow-y-auto border-r border-border">
           <div className="aspect-[1/1.4] bg-white shadow-sm rounded-lg max-w-xl mx-auto flex items-center justify-center text-muted-foreground">
@@ -89,7 +89,7 @@ const TextReviewPage = () => {
         </div>
 
         {/* OCR Text Editor (Right) */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
           <div className="max-w-3xl mx-auto">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Extracted Text</h2>

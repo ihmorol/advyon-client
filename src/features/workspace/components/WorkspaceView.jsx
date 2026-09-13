@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
     ChevronDown, Users, Folder, Settings, PanelLeft, PanelRight, Plus, ChevronRight, Search, FolderOpen, ArrowLeft,
-    CheckSquare, Square, PanelRightClose, Maximize2
+    CheckSquare, Square, PanelRightClose, Maximize2, UserPlus
 } from 'lucide-react';
 import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import { cn } from "@/lib/utils";
@@ -11,20 +11,44 @@ import { useDocumentsStore } from '@/store/documents';
 import { useCasesStore } from '@/store/cases';
 import { SmartFileUploader } from '@/components/SmartFileUploader';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from "@/hooks/use-mobile";
+import DocumentErrorBoundary from '@/features/documents/components/DocumentErrorBoundary';
+import PDFViewer from '@/features/documents/components/PDFViewer';
+import { useAuthStore } from '@/store/useAuthStore';
+import { shareCaseAccess } from '@/services/caseAccess/caseAccessService';
+import { toast } from 'sonner';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
     const navigate = useNavigate();
-    const [showLeftSidebar, setShowLeftSidebar] = useState(true);
+    const { user } = useAuthStore();
+    const isMobile = useIsMobile();
+    const [showLeftSidebar, setShowLeftSidebar] = useState(!isMobile);
+
+    React.useEffect(() => {
+        setShowLeftSidebar(!isMobile);
+    }, [isMobile]);
+
     const [isCaseSwitcherOpen, setIsCaseSwitcherOpen] = useState(false);
     const [breadcrumbs, setBreadcrumbs] = useState([activeCase.title]);
     const [expandedFolders, setExpandedFolders] = useState([]);
+    const [isAddClientOpen, setIsAddClientOpen] = useState(false);
+    const [clientEmail, setClientEmail] = useState('');
+    const [clientRole, setClientRole] = useState('viewer');
+    const [isInvitingClient, setIsInvitingClient] = useState(false);
 
     // Store Integration
-    const { 
-        fetchDocuments, 
-        getDocuments, 
-        isLoading, 
-        selectedDocument, 
+    const {
+        fetchDocuments,
+        getDocuments,
+        isLoading,
+        selectedDocument,
         setSelectedDocument,
         selectedForAI,
         toggleSelectedForAI,
@@ -71,68 +95,77 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
         // Otherwise, the last breadcrumb IS the folder name.
         return lastCrumb;
     }, [breadcrumbs, activeCase.title, dynamicFolders]);
-    
+
     // Ensure the current folder actually exists in our derived list, otherwise fallback safely
     const currentFolder = dynamicFolders.includes(derivedCurrentFolder) ? derivedCurrentFolder : (dynamicFolders[0] || 'General');
 
     // Filter files for the main view
     const currentFiles = folderStats[currentFolder] || [];
-    
+
     // Check loading state for the root fetch
-    const loading = isLoading(activeCase.id); 
+    const loading = isLoading(activeCase.id);
 
     // Filter files based on search term
     const filteredFiles = currentFiles.filter(f =>
         (f.fileName || f.name || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Fetch Content for selected document
-    const { fetchDocumentContent } = useDocumentsStore();
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const [loadingPreview, setLoadingPreview] = useState(false);
+    const previewPanelRef = useRef(null);
 
-    React.useEffect(() => {
-        let active = true;
-        const loadPreview = async () => {
-             const docId = selectedDocument?.id || selectedDocument?._id;
-            if (!docId || !activeCase?.id) {
-                setPreviewUrl(null);
-                return;
-            }
-            
-            setLoadingPreview(true);
-            console.log('[Preview] Loading for doc:', docId, 'cloudinaryUrl:', selectedDocument.cloudinaryUrl);
-            
-            try {
-                // Check if we already have a direct URL in the document object
-                const directUrl = selectedDocument.cloudinaryUrl || selectedDocument.url || selectedDocument.secure_url;
-                if (directUrl) {
-                    console.log('[Preview] Using direct cloudinary URL:', directUrl);
-                    setPreviewUrl(directUrl);
-                } else {
-                    console.log('[Preview] Fetching content URL from API...');
-                    const url = await fetchDocumentContent(docId);
-                    console.log('[Preview] Fetched URL:', url);
-                    if (active) {
-                        setPreviewUrl(url);
-                    }
-                }
-            } catch (err) {
-                console.error("[Preview] Failed to load preview url", err);
-                setPreviewUrl(null);
-            } finally {
-                if (active) setLoadingPreview(false);
-            }
-        };
+    const caseIdentifier = activeCase?.id || activeCase?._id;
+    const canManageAccess = ['lawyer', 'admin', 'superAdmin'].includes(user?.role);
 
-        if (selectedDocument) {
-            loadPreview();
-        } else {
-             setPreviewUrl(null);
+    const handleInviteClientToCase = async (event) => {
+        event.preventDefault();
+
+        if (!clientEmail.trim()) {
+            toast.error('Client email is required');
+            return;
         }
-        
-        return () => { active = false; };
-    }, [selectedDocument, activeCase, fetchDocumentContent]);
+
+        if (!caseIdentifier) {
+            toast.error('Case is not ready yet');
+            return;
+        }
+
+        setIsInvitingClient(true);
+        try {
+            await shareCaseAccess({
+                email: clientEmail.trim(),
+                caseId: caseIdentifier,
+                role: clientRole,
+            });
+
+            toast.success('Client added to this case');
+            setClientEmail('');
+            setClientRole('viewer');
+            setIsAddClientOpen(false);
+        } catch (error) {
+            const message = error?.response?.data?.message || 'Failed to add client to case';
+            toast.error(message);
+        } finally {
+            setIsInvitingClient(false);
+        }
+    };
+
+    // Auto-expand / collapse the preview panel when a document is selected
+    React.useEffect(() => {
+        if (selectedDocument) {
+            previewPanelRef.current?.expand();
+        } else {
+            previewPanelRef.current?.collapse();
+        }
+    }, [selectedDocument]);
+
+    // Derive preview URL from the already-fetched document object.
+    // The list endpoint (/cases/:id/documents) already signs cloudinaryUrl.
+    // If cloudinaryUrl is missing, PDFViewer will fall back to calling /documents/:id/content.
+    const previewUrl = selectedDocument
+        ? (selectedDocument.cloudinaryUrl ||
+           selectedDocument.url ||
+           selectedDocument.secure_url ||
+           null)
+        : null;
 
 
     const handleFolderClick = (folder) => {
@@ -143,6 +176,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                 ? prev.filter(f => f !== folder)
                 : [...prev, folder]
         );
+        if (isMobile) setShowLeftSidebar(false);
     };
 
     const handleFileClick = (folder, file) => {
@@ -152,13 +186,23 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
         }
         navigate(`/dashboard/workspace/doc/${file.id || file._id}`);
         setSelectedDocument(file);
+        if (isMobile) setShowLeftSidebar(false);
     };
 
     return (
         <div className="flex flex-1 overflow-hidden relative z-20 animate-in fade-in slide-in-from-right-4 duration-500 h-full p-0">
 
             {/* LEFT SIDEBAR */}
-            <aside className={cn("bg-card border-r border-border flex flex-col transition-all duration-300 ease-in-out", showLeftSidebar ? "w-64 translate-x-0 opacity-100" : "w-0 -translate-x-full opacity-0 overflow-hidden border-none")}>
+            {isMobile && showLeftSidebar && (
+                <div 
+                    className="absolute inset-0 z-30 bg-background/80 backdrop-blur-sm"
+                    onClick={() => setShowLeftSidebar(false)}
+                />
+            )}
+            <aside className={cn("bg-card flex flex-col transition-all duration-300 ease-in-out z-40",
+                isMobile ? "absolute inset-y-0 left-0 border-r border-border" : "relative border-r border-border",
+                showLeftSidebar ? "w-64 translate-x-0 opacity-100" : "w-0 -translate-x-full opacity-0 overflow-hidden border-none"
+            )}>
                 <div className="w-64 flex flex-col h-full overflow-hidden">
                     <div className="p-3 overflow-y-auto custom-scrollbar flex-1">
 
@@ -219,7 +263,7 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                             {dynamicFolders.length === 0 && !loading && (
                                 <div className="text-xs text-muted-foreground px-2 italic">No folders yet</div>
                             )}
-                            
+
                             {dynamicFolders.map((folder) => {
                                 const isExpanded = expandedFolders.includes(folder);
                                 const isCurrent = currentFolder === folder;
@@ -255,8 +299,8 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                                             )}
                                                             title="Select for AI Context"
                                                         >
-                                                            {selectedForAI.includes(file.id || file._id) ? 
-                                                                <CheckSquare size={11} fill="currentColor" className="text-primary-foreground" /> : 
+                                                            {selectedForAI.includes(file.id || file._id) ?
+                                                                <CheckSquare size={11} fill="currentColor" className="text-primary-foreground" /> :
                                                                 <Square size={11} />
                                                             }
                                                         </button>
@@ -308,15 +352,24 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                         ))}
                     </div>
                     <div className="flex items-center gap-2 ml-3 flex-shrink-0">
-                        <button className="flex items-center gap-1.5 bg-accent hover:bg-accent/90 text-accent-foreground px-3 py-1 rounded-md text-xs font-semibold transition-all shadow-sm"><Plus size={14} /><span className="hidden sm:inline">Upload File</span></button>
+                        {canManageAccess && (
+                            <button
+                                onClick={() => setIsAddClientOpen(true)}
+                                className="flex items-center gap-1.5 border border-accent/30 bg-background hover:bg-accent/10 text-muted-foreground hover:text-foreground px-2 md:px-3 py-1 rounded-md text-xs font-semibold transition-all"
+                            >
+                                <UserPlus size={14} />
+                                <span className="hidden sm:inline">Add Client</span>
+                            </button>
+                        )}
+                        <button className="flex items-center gap-1.5 bg-accent hover:bg-accent/90 text-accent-foreground px-2 md:px-3 py-1 rounded-md text-xs font-semibold transition-all shadow-sm"><Plus size={14} /><span className="hidden sm:inline">Upload</span></button>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-hidden">
-                     <PanelGroup direction="horizontal">
+                    <PanelGroup direction={isMobile ? "vertical" : "horizontal"}>
                         {/* Doc List Panel */}
-                        <Panel 
-                            defaultSize={40} 
+                        <Panel
+                            defaultSize={40}
                             minSize={30}
                             maxSize={70}
                         >
@@ -354,12 +407,12 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                         </div>
                                     ) : filteredFiles.length > 0 ? (
                                         filteredFiles.map((file, idx) => (
-                                            <DocumentItem 
-                                                key={file.id || file._id || idx} 
+                                            <DocumentItem
+                                                key={file.id || file._id || idx}
                                                 {...file}
                                                 status={file.analysisStatus || file.processingStatus}
                                                 date={file.uploadedAt ? new Date(file.uploadedAt).toLocaleDateString() : ''}
-                                                onClick={() => setSelectedDocument(selectedDocument?.id === file.id ? null : file)} 
+                                                onClick={() => setSelectedDocument(selectedDocument?.id === file.id ? null : file)}
                                                 isActive={selectedDocument?.id === file.id}
                                                 onDelete={async (docId) => {
                                                     try {
@@ -390,80 +443,58 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                         </Panel>
 
                         {/* Resize Handle - ALWAYS RENDERED */}
-                        <PanelResizeHandle className="w-1 bg-border hover:bg-accent ring-1 ring-border/50 transition-colors cursor-col-resize flex items-center justify-center">
-                            <div className="w-0.5 h-8 bg-muted-foreground/30 rounded-full" />
+                        <PanelResizeHandle className={cn("bg-border hover:bg-accent ring-1 ring-border/50 transition-colors flex items-center justify-center", isMobile ? "h-1 cursor-row-resize py-1" : "w-1 cursor-col-resize px-1")}>
+                            <div className={cn("bg-muted-foreground/30 rounded-full", isMobile ? "h-0.5 w-8" : "w-0.5 h-8")} />
                         </PanelResizeHandle>
 
                         {/* Preview Panel - ALWAYS RENDERED with collapsible */}
-                        <Panel 
-                            defaultSize={60} 
-                            minSize={30} 
+                        <Panel
+                            ref={previewPanelRef}
+                            defaultSize={60}
+                            minSize={30}
                             maxSize={70}
                             collapsible={true}
                             collapsedSize={0}
-                            defaultCollapsed={!selectedDocument}
                         >
                             {selectedDocument ? (
                                 <div className="h-full border-l border-border bg-background flex flex-col overflow-hidden">
-                                     <div className="flex items-center justify-between p-3 border-b border-border bg-card/50">
+                                    <div className="flex items-center justify-between p-3 border-b border-border bg-card/50">
                                         <div className="flex items-center gap-2 truncate">
                                             <DocumentItem name={selectedDocument.name} type={selectedDocument.type} date={selectedDocument.date} status={selectedDocument.status} compact />
                                         </div>
                                         <div className="flex gap-2">
-                                            <button onClick={() => navigate(`/dashboard/workspace/doc/${selectedDocument.id || selectedDocument._id}`)} className="text-xs flex items-center gap-1 hover:text-primary transition-colors"><Maximize2 size={12}/> Expand</button>
+                                            <button onClick={() => navigate(`/dashboard/workspace/doc/${selectedDocument.id || selectedDocument._id}`)} className="text-xs flex items-center gap-1 hover:text-primary transition-colors"><Maximize2 size={12} /> Expand</button>
                                             <button onClick={() => setSelectedDocument(null)} className="text-muted-foreground hover:text-foreground"><PanelRightClose size={14} /></button>
                                         </div>
                                     </div>
-                                    
-                                    <div className="flex-1 overflow-y-auto p-4 bg-secondary/10">
-                                        <div className="bg-background border border-border rounded-xl shadow-sm overflow-hidden h-full flex flex-col">
-                                            {(previewUrl) ? (
-                                                <div className="flex-1 bg-white relative">
-                                                    {(() => {
-                                                        const fileExt = (selectedDocument.fileName || selectedDocument.name || '').split('.').pop()?.toLowerCase();
-                                                        const isOffice = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileExt);
-                                                        const isPdf = fileExt === 'pdf' || selectedDocument.fileType?.includes('pdf');
-                                                        
-                                                        if (!previewUrl || typeof previewUrl !== 'string') return null;
 
-                                                        // Use Google Docs Viewer for PDFs and Office files (handles CORS)
-                                                        const finalUrl = (isPdf || isOffice)
-                                                            ? `https://docs.google.com/gview?url=${encodeURIComponent(previewUrl)}&embedded=true`
-                                                            : previewUrl;
+                                    <div className="flex-1 flex flex-col min-h-0 bg-secondary/10">
+                                        {/* WBS-5.3: Error boundary wrapping preview pane with PDFViewer component */}
+                                        <DocumentErrorBoundary 
+                                            context="WorkspaceView.Preview" 
+                                            title="Preview Failed" 
+                                            message="This document couldn't be rendered. Try clicking retry or open it in a new viewer."
+                                            onDownloadFallback={() => navigate(`/dashboard/documents/${selectedDocument.id || selectedDocument._id}/download`)}
+                                        >
+                                            <div className="flex-1 min-h-0 bg-background border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+                                                <PDFViewer
+                                                    fileUrl={previewUrl}
+                                                    documentId={selectedDocument.id || selectedDocument._id}
+                                                    fileSize={selectedDocument.fileSize}
+                                                    fileName={selectedDocument.fileName || selectedDocument.name}
+                                                    fileType={selectedDocument.fileType}
+                                                    onDownload={() => navigate(`/dashboard/documents/${selectedDocument.id || selectedDocument._id}/download`)}
+                                                    onPageChange={(page) => console.log('[PDFViewer] Page changed:', page)}
+                                                />
+                                            </div>
+                                        </DocumentErrorBoundary>
 
-                                                        return (
-                                                            <iframe 
-                                                                src={finalUrl} 
-                                                                className="w-full h-full border-none"
-                                                                title={selectedDocument.fileName || selectedDocument.name}
-                                                                loading="lazy"
-                                                            />
-                                                        );
-                                                    })()}
-                                                </div>
-                                            ) : (
-                                                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                                                    {loadingPreview ? (
-                                                        <>
-                                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-                                                            <p className="text-muted-foreground">Loading preview...</p>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <p className="font-medium text-foreground">File Preview</p>
-                                                            <p className="text-xs opacity-50 mt-2">Preview not available.</p>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                        
                                         {/* Auto-filing Badge or Info */}
                                         {selectedDocument.autoFiling && (
                                             <div className="mt-4 p-3 bg-blue-50/10 border border-blue-500/20 rounded-lg">
                                                 <h4 className="text-xs font-semibold text-blue-400 mb-1">Auto-Filing Status</h4>
                                                 <div className="flex items-center gap-2 text-xs">
-                                                    <span className={cn("px-1.5 py-0.5 rounded capitalize", 
+                                                    <span className={cn("px-1.5 py-0.5 rounded capitalize",
                                                         selectedDocument.autoFiling.status === 'moved' ? "bg-green-500/10 text-green-400" : "bg-yellow-500/10 text-yellow-400"
                                                     )}>
                                                         {selectedDocument.autoFiling.status}
@@ -480,9 +511,71 @@ const WorkspaceView = ({ activeCase, onSwitchCase, searchTerm, onBack }) => {
                                 </div>
                             )}
                         </Panel>
-                     </PanelGroup>
+                    </PanelGroup>
                 </div>
             </main>
+
+            <Dialog open={isAddClientOpen} onOpenChange={setIsAddClientOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Add Client to Case</DialogTitle>
+                        <DialogDescription>
+                            Link an existing client account to this case using their email.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form className="space-y-4" onSubmit={handleInviteClientToCase}>
+                        <div className="space-y-2">
+                            <label htmlFor="workspace-client-email" className="text-sm font-medium text-foreground">
+                                Client Email
+                            </label>
+                            <input
+                                id="workspace-client-email"
+                                type="email"
+                                value={clientEmail}
+                                onChange={(event) => setClientEmail(event.target.value)}
+                                placeholder="client@example.com"
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                required
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="workspace-client-role" className="text-sm font-medium text-foreground">
+                                Access Role
+                            </label>
+                            <select
+                                id="workspace-client-role"
+                                value={clientRole}
+                                onChange={(event) => setClientRole(event.target.value)}
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            >
+                                <option value="viewer">Viewer</option>
+                                <option value="editor">Editor</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-1">
+                            <button
+                                type="button"
+                                onClick={() => setIsAddClientOpen(false)}
+                                className="px-3 py-2 text-xs font-semibold border border-border rounded-md hover:bg-muted transition-colors"
+                                disabled={isInvitingClient}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-3 py-2 text-xs font-semibold bg-accent text-accent-foreground rounded-md hover:bg-accent/90 transition-colors disabled:opacity-60"
+                                disabled={isInvitingClient}
+                            >
+                                {isInvitingClient ? 'Adding...' : 'Add Client'}
+                            </button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

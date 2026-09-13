@@ -23,6 +23,7 @@ import RippleBackground from '@/components/ui/RippleBackground';
 
 // ✅ import your zustand store
 import { useOnboardingStore } from '@/store/onboarding';
+import { onboardingSchema, validateForm } from '@/lib/validation/authSchemas';
 
 export default function OnboardingFlow() {
     const {
@@ -42,10 +43,21 @@ export default function OnboardingFlow() {
     const isLawyer = role === 'lawyer';
     const totalSteps = isLawyer ? 5 : 4;
 
-    // Validation Logic
+    // WBS-SM-MVP-02: Zod-backed per-step validation
     const isStepValid = () => {
-        if (step === 2 && !profile.fullName.trim()) return false;
-        if (step === 3 && !profile.displayName.trim()) return false;
+        if (step === 2) {
+            const result = onboardingSchema.safeParse({
+                role: role || 'client',
+                profile: { fullName: profile.fullName || '' },
+            });
+            // Check if fullName specifically has errors
+            if (!result.success) {
+                const nameError = result.error.issues.find(i => i.path.includes('fullName'));
+                if (nameError) return false;
+            }
+            return (profile.fullName || '').trim().length >= 2;
+        }
+        if (step === 3 && !(profile.displayName || '').trim()) return false;
         return true;
     };
 
@@ -98,17 +110,26 @@ export default function OnboardingFlow() {
                     barCouncilName:
                         finalRole === 'lawyer' ? profile.barCouncilName || undefined : undefined,
                     yearsOfExperience:
-                        finalRole === 'lawyer' && profile.yearsOfExperience
-                            ? Number(profile.yearsOfExperience) // Ensure number
+                        finalRole === 'lawyer'
+                            ? Number(profile.yearsOfExperience || 0) // Ensure number
                             : undefined,
                     primaryPracticeArea:
-                        finalRole === 'lawyer' ? profile.primaryPracticeArea || undefined : undefined,
+                        finalRole === 'lawyer' ? profile.primaryPracticeArea || 'Corporate Law' : undefined,
                 },
             };
 
+            // WBS-SM-MVP-02: Validate full payload with Zod before API call
+            const { success, errors } = validateForm(onboardingSchema, payload);
+            if (!success) {
+                const firstError = Object.values(errors)[0];
+                toast.error('Validation Error', { description: firstError || 'Please fix the highlighted fields.' });
+                setLoading(false);
+                return;
+            }
+
             // Call API
             await authService.onboardUser(payload);
-            
+
             toast.success("Profile Setup Complete!", {
                 description: finalRole === 'lawyer' ? "Welcome, Counselor." : "Welcome to Advyon."
             });
@@ -415,7 +436,7 @@ export default function OnboardingFlow() {
                                         <StepInput
                                             icon={Building}
                                             label="Bar Council Name"
-                                            placeholder="e.g. Bar Council of Delhi"
+                                            placeholder="e.g. Bar Council of Dhaka"
                                             value={profile.barCouncilName}
                                             onChange={(val) =>
                                                 updateProfile({ barCouncilName: val })
@@ -490,7 +511,7 @@ export default function OnboardingFlow() {
 
             {/* Footer Decoration */}
             <div className="absolute bottom-4 right-8 z-10 hidden lg:block">
-                <p className="text-[#B0C4C3]/60 text-xs">© 2025 Advyon Inc.</p>
+                <p className="text-[#B0C4C3]/60 text-xs">© 2026 Advyon Inc.</p>
             </div>
 
             <style>{`

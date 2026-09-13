@@ -99,6 +99,8 @@ const ProfilePage = () => {
     }
   };
 
+  const { user: clerkUser } = useUser();
+
   if (isLoading && !authUser) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -109,8 +111,6 @@ const ProfilePage = () => {
       </div>
     );
   }
-
-  const { user: clerkUser } = useUser();
 
   // Merge backend data with Clerk data
   // Backend data takes precedence, Clerk provides fallbacks for identity fields
@@ -144,7 +144,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-10">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 space-y-6 pt-4 sm:pt-6 pb-10">
       
       {/* Header Section */}
       <ProfileHeader 
