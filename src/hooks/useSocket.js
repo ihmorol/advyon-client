@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuth } from '@clerk/clerk-react';
 
 /**
  * Phase 8.5: useSocket Hook
@@ -22,7 +22,26 @@ const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http
 export const useSocket = () => {
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
-  const { token } = useAuthStore();
+  const [token, setToken] = useState(null);
+  const { getToken, isSignedIn, isLoaded } = useAuth();
+
+  // Fetch the Clerk session token for the socket handshake.
+  // The auth store never holds a token — only Clerk can provide one.
+  useEffect(() => {
+    let cancelled = false;
+    if (isLoaded && isSignedIn) {
+      getToken()
+        .then((t) => {
+          if (!cancelled) setToken(t);
+        })
+        .catch(() => {});
+    } else {
+      setToken(null);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoaded, isSignedIn, getToken]);
 
   useEffect(() => {
     if (!token) return;
