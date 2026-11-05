@@ -22,10 +22,10 @@ export const fetcher = async (url) => {
 
 export const mutationFetcher =
   (method) =>
-  async (url, { arg }) => {
-    const res = await api[method](url, arg);
-    return res.data;
-  };
+    async (url, { arg }) => {
+      const res = await api[method](url, arg);
+      return res.data;
+    };
 
 export const defaultSWRConfig = {
   revalidateOnFocus: true,

@@ -1,46 +1,168 @@
-import React from 'react';
-import { Briefcase, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Briefcase, Clock, MoreVertical, Archive, Trash2, RefreshCw } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { useCasesStore } from '@/store/cases';
+import { toast } from 'sonner';
 
-const CaseCard = ({ data, onOpen }) => (
-    // Deepest Teal Card (#051C1B) with Accent Border (#3A7573)
+const CaseCard = ({ data, onOpen }) => {
+    const { deleteCase, archiveCase, restoreCase } = useCasesStore();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    const handleArchive = async (e) => {
+        e.stopPropagation();
+        try {
+            await archiveCase(data.id || data._id);
+            toast.success('Case archived successfully');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to archive case');
+        }
+    };
+    const handleRestore = async (e) => {
+        e.stopPropagation();
+        try {
+            await restoreCase(data.id || data._id);
+            toast.success('Case unarchived successfully');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to unarchive case');
+        }
+    };
+
+    const handleDeleteClick = (e) => {
+        e.stopPropagation();
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async (e) => {
+        e.stopPropagation();
+        try {
+            await deleteCase(data.id || data._id);
+            toast.success('Case deleted successfully');
+            setIsDeleteDialogOpen(false);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to delete case');
+        }
+    };
+
+    return (
     <div
         onClick={() => onOpen(data)}
-        className="bg-primary border border-[#3A7573] rounded-xl p-5 hover:bg-[#153433] hover:border-white/30 transition-all cursor-pointer group flex flex-col h-full shadow-lg hover:shadow-xl hover:shadow-[#1C4645]/20 animate-in fade-in zoom-in-95 duration-300"
+        className="bg-card border border-accent/20 rounded-xl p-4 hover:bg-secondary hover:border-accent/40 transition-all cursor-pointer group flex flex-col h-full shadow-sm hover:shadow-lg animate-in fade-in zoom-in-95 duration-300"
     >
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-3">
             <div>
-                <h3 className="text-lg font-bold text-white group-hover:text-[#3A7573] transition-colors">{data.title}</h3>
-                <p className="text-xs text-[#B0C4C3] mt-1">Ref: {data.ref}</p>
+                <h3 className="text-base font-bold text-card-foreground group-hover:text-accent transition-colors">{data.title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Ref: {data.ref}</p>
             </div>
-            <div className={cn(
-                "px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border",
-                data.urgency === 'high' ? "bg-red-900/20 text-red-300 border-red-500/30" :
-                    data.urgency === 'medium' ? "bg-amber-900/20 text-amber-300 border-amber-500/30" :
-                        "bg-blue-900/20 text-blue-300 border-blue-500/30"
-            )}>
-                {data.urgency} Priority
+            <div className="flex items-center gap-2">
+                <div className={cn(
+                    "px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border",
+                    data.urgency === 'high' ? "bg-destructive/10 text-destructive border-destructive/30" :
+                        data.urgency === 'medium' ? "bg-accent/10 text-accent border-accent/30" :
+                            "bg-teal-accent/10 text-teal-bright border-teal-accent/30"
+                )}>
+                    {data.urgency}
+                </div>
+                {/* Action Menu */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1 rounded-md hover:bg-secondary text-muted-foreground transition-colors"
+                        >
+                            <MoreVertical size={16} />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40 z-50">
+                        {data.status === 'archived' ? (
+                            <DropdownMenuItem onClick={handleRestore} className="cursor-pointer gap-2">
+                                <RefreshCw size={14} />
+                                <span>Unarchive</span>
+                            </DropdownMenuItem>
+                        ) : (
+                            <DropdownMenuItem onClick={handleArchive} className="cursor-pointer gap-2">
+                                <Archive size={14} />
+                                <span>Archive</span>
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={handleDeleteClick} className="cursor-pointer text-destructive focus:bg-destructive focus:text-destructive-foreground gap-2">
+                            <Trash2 size={14} />
+                            <span>Delete</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={isDeleteDialogOpen} onOpenChange={(open) => {
+                    // Stop propagation when closing through overlay click or escape key
+                    if (!open) setIsDeleteDialogOpen(false);
+                }}>
+                    <DialogContent onClick={(e) => e.stopPropagation()} className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Delete Case</DialogTitle>
+                            <DialogDescription>
+                                Are you sure you want to delete this case? This action cannot be undone and will permanently remove the case and its contents.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="mt-4 sm:justify-end gap-2">
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsDeleteDialogOpen(false);
+                                }}
+                                className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md text-sm font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmDelete}
+                                className="px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md text-sm font-medium transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
 
-        <div className="space-y-3 mb-6 flex-1">
-            <div className="flex items-center justify-between text-xs text-[#B0C4C3]">
-                <span className="flex items-center gap-1.5"><Briefcase size={12} /> {data.type}</span>
-                <span className="flex items-center gap-1.5 text-[#B0C4C3]"><Clock size={12} /> {data.nextDeadline}</span>
+        <div className="space-y-2 mb-4 flex-1">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Briefcase size={10} /> {data.type}</span>
+                <span className="flex items-center gap-1"><Clock size={10} /> {data.nextDeadline}</span>
             </div>
-            <div className="w-full bg-[#153433] rounded-full h-1.5 overflow-hidden">
-                <div className="bg-gradient-to-r from-[#1C4645] to-[#3A7573] h-full rounded-full" style={{ width: `${data.progress}%` }}></div>
+            <div className="w-full bg-secondary rounded-full h-1 overflow-hidden">
+                <div className="bg-accent h-full rounded-full" style={{ width: `${data.progress}%` }}></div>
             </div>
         </div>
 
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#3A7573]/50">
-            <div className="flex -space-x-2">
-                <div className="w-6 h-6 rounded-full bg-[#153433] border border-[#051C1B] flex items-center justify-center text-[8px] text-white">JD</div>
-                <div className="w-6 h-6 rounded-full bg-[#1C4645] border border-[#051C1B] flex items-center justify-center text-[8px] text-white">AB</div>
+        <div className="flex items-center justify-between mt-auto pt-3 border-t border-accent/20">
+            <div className="flex -space-x-1.5">
+                <div className="w-5 h-5 rounded-full bg-secondary border border-background flex items-center justify-center text-[7px] text-foreground">JD</div>
+                <div className="w-5 h-5 rounded-full bg-primary border border-background flex items-center justify-center text-[7px] text-primary-foreground">AB</div>
             </div>
-            <span className="text-xs font-medium text-[#3A7573] group-hover:text-white transition-colors">Open Workspace &rarr;</span>
+            <span className="text-xs font-medium text-teal-accent group-hover:text-accent transition-colors">Open &rarr;</span>
         </div>
     </div>
-);
+    );
+};
 
 export default CaseCard;

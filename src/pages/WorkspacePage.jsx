@@ -1,14 +1,29 @@
-import React, { useState } from 'react';
-import { DashboardView, WorkspaceView, ALL_CASES } from '../features/workspace';
-import { Navbar } from '@/components/Navbar';
-import { Sidebar } from '@/components/Sidebar';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from 'react';
+import { DashboardView, WorkspaceView } from '../features/workspace';
+import { useCasesStore } from '@/store/cases';
+import { useParams } from 'react-router-dom';
 
 const WorkspacePage = () => {
+    const { caseId } = useParams(); // Get caseId from URL
     const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'workspace'
     const [activeCase, setActiveCase] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); // Global search state
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+
+    const { cases, fetchCases } = useCasesStore();
+
+    useEffect(() => {
+        fetchCases();
+    }, [fetchCases]);
+
+    const routeSelectedCase = useMemo(() => {
+        if (!caseId || cases.length === 0) {
+            return null;
+        }
+        return cases.find(c => c.id === caseId || c._id === caseId) || null;
+    }, [caseId, cases]);
+
+    const effectiveCurrentView = routeSelectedCase ? 'workspace' : currentView;
+    const effectiveActiveCase = routeSelectedCase || activeCase || cases[0] || null;
 
     const handleCaseSelect = (caseData) => {
         setActiveCase(caseData);
@@ -17,39 +32,17 @@ const WorkspacePage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
-
-            <div className="flex flex-1 relative">
-                {/* Animated Placeholder for the fixed sidebar width */}
-
-
-                <Sidebar
-                    className="hidden md:flex bg-primary"
-                    isCollapsed={isSidebarCollapsed}
-                    onMouseEnter={() => setIsSidebarCollapsed(false)}
-                    onMouseLeave={() => setIsSidebarCollapsed(true)}
+        <div className="h-full w-full flex flex-col bg-background overflow-hidden relative">
+            {effectiveCurrentView === 'dashboard' ? (
+                <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
+            ) : (
+                <WorkspaceView
+                    activeCase={effectiveActiveCase}
+                    onSwitchCase={handleCaseSelect}
+                    onBack={() => setCurrentView('dashboard')}
+                    searchTerm={searchTerm}
                 />
-
-                <main className="flex-1 overflow-hidden relative z-10 flex flex-col bg-primary rounded-[30px] m-4 shadow-2xl border border-[#3A7573]/20">
-                    {/* Background Effects */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1C4645] via-[#153433] to-[#0f2524] -z-10"></div>
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 -z-10 mix-blend-overlay fixed"></div>
-
-                    {/* Workspace Content */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        {currentView === 'dashboard' ? (
-                            <DashboardView onSelectCase={handleCaseSelect} searchTerm={searchTerm} />
-                        ) : (
-                            <WorkspaceView
-                                activeCase={activeCase || ALL_CASES[0]}
-                                onSwitchCase={handleCaseSelect}
-                                onBack={() => setCurrentView('dashboard')}
-                                searchTerm={searchTerm}
-                            />
-                        )}
-                    </div>
-                </main>
-            </div>
+            )}
         </div>
     );
 };

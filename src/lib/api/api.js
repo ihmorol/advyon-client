@@ -1,19 +1,21 @@
 import axios from 'axios';
+import { attachErrorInterceptor } from './apiErrorHandler';
 
 /**
  * Production-ready Axios instance configured for a Clerk-authenticated
  * Express backend. The instance:
  *  - reads the base URL from VITE_API_URL (defaults to localhost)
  *  - attaches a Clerk session token to requests via an interceptor
+ *  - normalises all API errors into a shared envelope (WBS-TD-CQ-01)
  */
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 // Axios instance with sane defaults
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000,
+  timeout: 0, // No timeout to allow for long running AI requests
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -44,13 +46,13 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Basic response interceptor placeholder (extend as needed)
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // Central place for auth / refresh handling or logging
-    return Promise.reject(error);
-  }
-);
+// WBS-TD-CQ-01: Normalise all API errors into shared envelope
+attachErrorInterceptor(api);
+
+// AI Chat Endpoints
+api.getChats = () => api.get('/ai/chats');
+api.getChat = (id) => api.get(`/ai/chats/${id}`);
+api.createOrUpdateChat = (data) => api.post('/ai/chats', data);
+api.deleteChat = (id) => api.delete(`/ai/chats/${id}`);
 
 export default api;

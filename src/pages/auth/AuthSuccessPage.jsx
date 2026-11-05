@@ -36,10 +36,10 @@ const AuthSuccessPage = () => {
         You have successfully logged in. We're taking you to your dashboard now.
       </p>
 
-      <div className="flex gap-2">
-        <div className="w-3 h-3 rounded-full bg-[#3A7573] animate-bounce [animation-delay:-0.3s]"></div>
-        <div className="w-3 h-3 rounded-full bg-[#3A7573] animate-bounce [animation-delay:-0.15s]"></div>
-        <div className="w-3 h-3 rounded-full bg-[#3A7573] animate-bounce"></div>
+      <div className="flex gap-3">
+        <div className="w-2.5 h-2.5 rounded-full bg-teal-400/80 animate-bounce [animation-delay:-0.3s] shadow-[0_0_10px_rgba(45,212,191,0.5)]"></div>
+        <div className="w-2.5 h-2.5 rounded-full bg-teal-400/80 animate-bounce [animation-delay:-0.15s] shadow-[0_0_10px_rgba(45,212,191,0.5)]"></div>
+        <div className="w-2.5 h-2.5 rounded-full bg-teal-400/80 animate-bounce shadow-[0_0_10px_rgba(45,212,191,0.5)]"></div>
       </div>
     </div>
   );

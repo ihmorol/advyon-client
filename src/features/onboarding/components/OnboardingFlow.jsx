@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { authService } from '@/services/auth/auth.service';
 import {
     Scale,
     CheckCircle2,
@@ -20,6 +23,7 @@ import RippleBackground from '@/components/ui/RippleBackground';
 
 // ✅ import your zustand store
 import { useOnboardingStore } from '@/store/onboarding';
+import { onboardingSchema, validateForm } from '@/lib/validation/authSchemas';
 
 export default function OnboardingFlow() {
     const {
@@ -32,16 +36,28 @@ export default function OnboardingFlow() {
         resetOnboarding,
     } = useOnboardingStore();
 
+    const navigate = useNavigate();
     const [direction, setDirection] = useState(1); // 1 for forward, -1 for back
     const [loading, setLoading] = useState(false);
 
     const isLawyer = role === 'lawyer';
     const totalSteps = isLawyer ? 5 : 4;
 
-    // Validation Logic
+    // WBS-SM-MVP-02: Zod-backed per-step validation
     const isStepValid = () => {
-        if (step === 2 && !profile.fullName.trim()) return false;
-        if (step === 3 && !profile.displayName.trim()) return false;
+        if (step === 2) {
+            const result = onboardingSchema.safeParse({
+                role: role || 'client',
+                profile: { fullName: profile.fullName || '' },
+            });
+            // Check if fullName specifically has errors
+            if (!result.success) {
+                const nameError = result.error.issues.find(i => i.path.includes('fullName'));
+                if (nameError) return false;
+            }
+            return (profile.fullName || '').trim().length >= 2;
+        }
+        if (step === 3 && !(profile.displayName || '').trim()) return false;
         return true;
     };
 
@@ -75,47 +91,62 @@ export default function OnboardingFlow() {
     const finishOnboarding = async (finalRole) => {
         setLoading(true);
 
-        // ✅ Build payload matching backend onboardValidation
-        const payload = {
-            role: finalRole, // 'client' | 'lawyer'
-            profile: {
-                fullName: profile.fullName,
-                displayName: profile.displayName,
-                phone: profile.phone || undefined,
-                avatarUrl: profile.avatarUrl || undefined,
-                preferredLanguage: profile.preferredLanguage || 'English',
-                timezone: profile.timezone || undefined,
-                address: profile.address || undefined,
+        try {
+            // ✅ Build payload matching backend onboardValidation
+            const payload = {
+                role: finalRole, // 'client' | 'lawyer'
+                profile: {
+                    fullName: profile.fullName,
+                    displayName: profile.displayName,
+                    phone: profile.phone || undefined,
+                    avatarUrl: profile.avatarUrl || undefined,
+                    preferredLanguage: profile.preferredLanguage || 'English',
+                    timezone: profile.timezone || undefined,
+                    address: profile.address || undefined,
 
-                // Only send lawyer fields if lawyer
-                barRegistrationNumber:
-                    finalRole === 'lawyer' ? profile.barRegistrationNumber || undefined : undefined,
-                barCouncilName:
-                    finalRole === 'lawyer' ? profile.barCouncilName || undefined : undefined,
-                yearsOfExperience:
-                    finalRole === 'lawyer' && profile.yearsOfExperience
-                        ? profile.yearsOfExperience
-                        : undefined,
-                primaryPracticeArea:
-                    finalRole === 'lawyer' ? profile.primaryPracticeArea || undefined : undefined,
-            },
-        };
+                    // Only send lawyer fields if lawyer
+                    barRegistrationNumber:
+                        finalRole === 'lawyer' ? profile.barRegistrationNumber || undefined : undefined,
+                    barCouncilName:
+                        finalRole === 'lawyer' ? profile.barCouncilName || undefined : undefined,
+                    yearsOfExperience:
+                        finalRole === 'lawyer'
+                            ? Number(profile.yearsOfExperience || 0) // Ensure number
+                            : undefined,
+                    primaryPracticeArea:
+                        finalRole === 'lawyer' ? profile.primaryPracticeArea || 'Corporate Law' : undefined,
+                },
+            };
 
-        // TODO: Plug into real API (example):
-        // import apiClient from '@/lib/api/client';
-        // await apiClient.post('/api/v1/auth/onboard', payload);
+            // WBS-SM-MVP-02: Validate full payload with Zod before API call
+            const { success, errors } = validateForm(onboardingSchema, payload);
+            if (!success) {
+                const firstError = Object.values(errors)[0];
+                toast.error('Validation Error', { description: firstError || 'Please fix the highlighted fields.' });
+                setLoading(false);
+                return;
+            }
 
-        // For now keep your simulation
-        setTimeout(() => {
-            const message =
-                finalRole === 'lawyer'
-                    ? 'Verification Submitted! Redirecting to Lawyer Workspace...'
-                    : 'Setup Complete! Redirecting to User Dashboard...';
+            // Call API
+            await authService.onboardUser(payload);
 
-            alert(message);
+            toast.success("Profile Setup Complete!", {
+                description: finalRole === 'lawyer' ? "Welcome, Counselor." : "Welcome to Advyon."
+            });
+
+            // Delay slightly for UX then redirect
+            setTimeout(() => {
+                resetOnboarding();
+                navigate(finalRole === 'lawyer' ? '/dashboard/workspace' : '/dashboard');
+            }, 1000);
+
+        } catch (error) {
+            console.error("Onboarding failed:", error);
+            toast.error("Setup Failed", {
+                description: error.response?.data?.message || "Please check your details and try again."
+            });
             setLoading(false);
-            // In a real app, you would navigate and maybe resetOnboarding()
-        }, 1500);
+        }
     };
 
     // Animation Variants
@@ -291,36 +322,72 @@ export default function OnboardingFlow() {
                                             <p className="text-slate-500">Are you practicing law?</p>
                                         </div>
 
-                                        <div
-                                            onClick={() => setRole(isLawyer ? null : 'lawyer')}
-                                            className={`
-                        flex items-center justify-between p-5 rounded-xl border-2 cursor-pointer transition-all duration-300
-                        ${isLawyer
-                                                    ? 'border-[#3A7573] bg-teal-50 shadow-md'
-                                                    : 'border-slate-200 hover:border-[#3A7573]/50 hover:bg-slate-50'
-                                                }
-                      `}
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div
-                                                    className={`
-                            w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                            ${isLawyer
-                                                            ? 'bg-[#3A7573] text-white'
-                                                            : 'bg-slate-200 text-slate-500'
-                                                        }
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {/* Option 1: Client/User */}
+                                            <div
+                                                onClick={() => setRole('client')}
+                                                className={`
+                            flex items-center justify-between p-5 rounded-xl border-2 cursor-pointer transition-all duration-300
+                            ${!isLawyer
+                                                        ? 'border-[#3A7573] bg-teal-50 shadow-md ring-1 ring-[#3A7573]'
+                                                        : 'border-slate-200 hover:border-[#3A7573]/50 hover:bg-slate-50'
+                                                    }
                           `}
-                                                >
-                                                    <Scale size={20} />
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div
+                                                        className={`
+                                w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                                ${!isLawyer
+                                                                ? 'bg-[#3A7573] text-white'
+                                                                : 'bg-slate-200 text-slate-500'
+                                                            }
+                              `}
+                                                    >
+                                                        <User size={20} />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="font-bold text-slate-800">I need Legal Help</p>
+                                                        <p className="text-xs text-slate-500">I want to find lawyers & manage cases</p>
+                                                    </div>
                                                 </div>
-                                                <div className="text-left">
-                                                    <p className="font-bold text-slate-800">Yes, I am a Lawyer</p>
-                                                    <p className="text-xs text-slate-500">I have a Bar Council ID</p>
-                                                </div>
+                                                {!isLawyer && (
+                                                    <CheckCircle2 size={24} className="text-[#3A7573]" />
+                                                )}
                                             </div>
-                                            {isLawyer && (
-                                                <CheckCircle2 size={24} className="text-[#3A7573]" />
-                                            )}
+
+                                            {/* Option 2: Lawyer */}
+                                            <div
+                                                onClick={() => setRole('lawyer')}
+                                                className={`
+                            flex items-center justify-between p-5 rounded-xl border-2 cursor-pointer transition-all duration-300
+                            ${isLawyer
+                                                        ? 'border-[#3A7573] bg-teal-50 shadow-md ring-1 ring-[#3A7573]'
+                                                        : 'border-slate-200 hover:border-[#3A7573]/50 hover:bg-slate-50'
+                                                    }
+                          `}
+                                            >
+                                                <div className="flex items-center gap-4">
+                                                    <div
+                                                        className={`
+                                w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                                ${isLawyer
+                                                                ? 'bg-[#3A7573] text-white'
+                                                                : 'bg-slate-200 text-slate-500'
+                                                            }
+                              `}
+                                                    >
+                                                        <Scale size={20} />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="font-bold text-slate-800">I am a Lawyer</p>
+                                                        <p className="text-xs text-slate-500">I want to manage clients & practice</p>
+                                                    </div>
+                                                </div>
+                                                {isLawyer && (
+                                                    <CheckCircle2 size={24} className="text-[#3A7573]" />
+                                                )}
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}
@@ -369,7 +436,7 @@ export default function OnboardingFlow() {
                                         <StepInput
                                             icon={Building}
                                             label="Bar Council Name"
-                                            placeholder="e.g. Bar Council of Delhi"
+                                            placeholder="e.g. Bar Council of Dhaka"
                                             value={profile.barCouncilName}
                                             onChange={(val) =>
                                                 updateProfile({ barCouncilName: val })
@@ -444,7 +511,7 @@ export default function OnboardingFlow() {
 
             {/* Footer Decoration */}
             <div className="absolute bottom-4 right-8 z-10 hidden lg:block">
-                <p className="text-[#B0C4C3]/60 text-xs">© 2025 Advyon Inc.</p>
+                <p className="text-[#B0C4C3]/60 text-xs">© 2026 Advyon Inc.</p>
             </div>
 
             <style>{`

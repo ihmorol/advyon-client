@@ -2,46 +2,134 @@ import React from "react"
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { useAuthStore } from "@/store/useAuthStore"
 import {
   LayoutDashboard,
   Users,
   Settings,
   FileText,
+  FolderOpen,
   BarChart3,
-  HelpCircle
+  HelpCircle,
+  Loader2,
+  Calendar,
+  CreditCard,
+  ShieldCheck,
+  Scale,
+  MessageSquare
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export const sidebarItems = [
+export const allSidebarItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+    roles: ['lawyer', 'client', 'admin', 'judge']
   },
   {
     title: "Cases",
     href: "/dashboard/workspace",
     icon: FileText,
+    roles: ['lawyer', 'client', 'admin', 'judge']
+  },
+  {
+    title: "Schedule",
+    href: "/dashboard/schedule",
+    icon: Calendar,
+    roles: ['lawyer', 'client', 'admin', 'judge']
+  },
+  {
+    title: "Documents",
+    href: "/dashboard/documents",
+    icon: FolderOpen,
+    roles: ['lawyer', 'client', 'admin', 'judge']
   },
   {
     title: "Clients",
     href: "/dashboard/clients",
     icon: Users,
+    roles: ['lawyer', 'admin']
   },
   {
     title: "Analytics",
     href: "/dashboard/analytics",
     icon: BarChart3,
+    roles: ['lawyer', 'admin']
+  },
+  {
+    title: "Billing",
+    href: "/dashboard/billing",
+    icon: CreditCard,
+    roles: ['lawyer', 'client', 'admin', 'judge']
+  },
+  {
+    title: "Find Lawyers",
+    href: "/dashboard/find-lawyers",
+    icon: Scale,
+    roles: ['client']
+  },
+  {
+    title: "Chat",
+    href: "/dashboard/chat",
+    icon: MessageSquare,
+    roles: ['client', 'lawyer']
+  },
+  {
+    title: "Admin Panel",
+    href: "/dashboard/admin",
+    icon: ShieldCheck,
+    roles: ['admin', 'superAdmin']
   },
   {
     title: "Settings",
-    href: "/dashboard/settings",
+    href: "/dashboard/profile#preferences",
     icon: Settings,
+    roles: ['lawyer', 'client', 'admin', 'judge']
   },
 ]
 
 export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) {
   const location = useLocation()
+  const { user, isLoading } = useAuthStore();
+  const userRole = user?.role || 'client';
+
+  const sidebarItems = allSidebarItems.filter(item => item.roles.includes(userRole));
+
+  // Show loading state while user data is being fetched
+  // This prevents showing incorrect sidebar items during initial load
+  if (!user && isLoading) {
+    return (
+      <motion.div
+        initial={{ width: 80 }}
+        animate={{ width: isCollapsed ? 80 : 250 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        className={cn(
+          "fixed left-0 top-16 bottom-0 z-40 bg-primary text-primary-foreground flex flex-col shadow-2xl",
+          className
+        )}
+      >
+        <div className="flex-1 py-6 flex flex-col items-center justify-center gap-4 overflow-hidden">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm text-muted-foreground whitespace-nowrap"
+              >
+                Loading menu...
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -57,7 +145,8 @@ export function Sidebar({ className, isCollapsed, onMouseEnter, onMouseLeave }) 
     >
       <div className="flex-1 py-6 flex flex-col gap-2 overflow-hidden">
         {sidebarItems.map((item) => {
-          const isActive = location.pathname === item.href
+          const hrefPath = item.href.split('#')[0]
+          const isActive = location.pathname === hrefPath
           return (
             <Link
               key={item.href}

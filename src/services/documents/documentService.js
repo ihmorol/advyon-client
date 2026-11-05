@@ -1,15 +1,47 @@
 import { buildUrl, useApiMutation, useApiSWR } from '../_shared/apiClient';
+import api from '@/lib/api/api';
 
 const CASE_BASE = '/cases';
+const DOCUMENT_BASE = '/documents';
 
 export const useDocuments = (caseId, folder) =>
-  useApiSWR(caseId ? buildUrl(`${CASE_BASE}/${caseId}`, { folder }) : null);
+  useApiSWR(caseId ? buildUrl(`${CASE_BASE}/${caseId}/documents`, { folder }) : null);
 
 export const useUploadDocument = (caseId) =>
-  useApiMutation(`${CASE_BASE}/${caseId}/upload`, 'post');
+  useApiMutation(`${CASE_BASE}/${caseId}/documents`, 'post');
 
 export const useDeleteDocument = (caseId, documentId) =>
-  useApiMutation(`${CASE_BASE}/${caseId}/${documentId}`, 'delete');
+  useApiMutation(`${CASE_BASE}/${caseId}/documents/${documentId}`, 'delete');
+
+/**
+ * Get all documents for the current user across all cases
+ * @param {Object} params - Optional query parameters { folder, processingStatus, category, status }
+ */
+export const useAllDocuments = (params = {}) =>
+  useApiSWR(buildUrl(`${DOCUMENT_BASE}/my-documents`, params));
+
+/**
+ * Archive a document
+ * @param {string} documentId - The document's custom ID
+ */
+export const archiveDocument = (documentId) =>
+  api.patch(`${DOCUMENT_BASE}/${documentId}/archive`);
+
+/**
+ * Restore/Unarchive a document
+ * @param {string} documentId - The document's custom ID
+ */
+export const restoreDocument = (documentId) =>
+  api.patch(`${DOCUMENT_BASE}/${documentId}/restore`);
+
+/**
+ * Delete a document (soft delete via existing case route)
+ * @param {string} caseId - The case ID
+ * @param {string} documentId - The document's custom ID
+ */
+export const deleteDocument = (caseId, documentId) =>
+  api.delete(`${CASE_BASE}/${caseId}/documents/${documentId}`);
+
 
 /**
  * Usage example:
@@ -21,4 +53,8 @@ export const useDeleteDocument = (caseId, documentId) =>
  * formData.append('folderName', folder);
  * await uploadDoc(formData);
  * const { trigger: deleteDoc } = useDeleteDocument(caseId, docId);
+ * 
+ * // Get all user documents
+ * const { data: allDocs } = useAllDocuments({ category: 'Evidence' });
  */
+
