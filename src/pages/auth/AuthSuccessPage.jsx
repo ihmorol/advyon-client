@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { CheckCircle } from 'lucide-react';
-import DynamicBackground from '@/components/ui/DynamicBackground';
+ 
 
 const AuthSuccessPage = () => {
   const navigate = useNavigate();
@@ -23,17 +23,17 @@ const AuthSuccessPage = () => {
   }, [navigate]);
 
   return (
-    <div className="bg-[#1C4645]/60 backdrop-blur-2xl border border-white/10 p-10 rounded-3xl shadow-[0_0_50px_rgba(58,117,115,0.2)] flex flex-col items-center justify-center w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="bg-teal-400/10 p-5 rounded-full mb-8 border border-teal-400/20 shadow-inner group">
-        <CheckCircle className="w-16 h-16 text-teal-400 group-hover:scale-110 transition-transform duration-500" />
+    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
+      <div className="bg-[#1C4645]/10 p-4 rounded-full mb-6 border border-[#3A7573]/20 animate-pulse">
+        <CheckCircle className="w-16 h-16 text-[#3A7573]" />
       </div>
-
-      <h2 className="text-4xl font-extrabold text-white mb-3 tracking-tight">
-        Welcome Back
+      
+      <h2 className="text-3xl font-bold text-[#1C4645] mb-2">
+        Welcome Back!
       </h2>
-
-      <p className="text-white/60 text-center max-w-sm mb-10 text-lg leading-relaxed font-light">
-        Authentication successful. Preparing your workspace...
+      
+      <p className="text-gray-600 text-center max-w-sm mb-8">
+        You have successfully logged in. We're taking you to your dashboard now.
       </p>
 
       <div className="flex gap-3">
